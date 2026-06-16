@@ -81,6 +81,20 @@
         "pause": "暂停",
         "preview": "试听音色"
     },
+    "import": {
+        "button": "导入图片",
+        "title": "导入本地图片",
+        "dropzone": "拖放图片到此处，或点击选择文件",
+        "maxFiles": "最多支持 {max} 张图片",
+        "selected": "已选择 {count} 张图片",
+        "clearAll": "清空",
+        "cancel": "取消",
+        "confirm": "导入 {count} 张",
+        "importing": "导入中...",
+        "success": "成功导入 {count} 张图片",
+        "failed": "导入失败",
+        "invalidFormat": "仅支持图片格式"
+    },
     "modal": {
         "newCharacter": "新建角色",
         "confirm": "确定",

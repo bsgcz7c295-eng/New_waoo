@@ -1,7 +1,7 @@
 'use client'
 import { resolveErrorDisplay } from '@/lib/errors/display'
 
-import { useRef, useState } from 'react'
+import { useRef, useState, useCallback } from 'react'
 import { useTranslations } from 'next-intl'
 import {
   useGenerateLocationImage,
@@ -10,6 +10,7 @@ import {
   useUploadLocationImage,
   useDeleteLocation
 } from '@/lib/query/mutations'
+import { ImportDialog } from './ImportDialog'
 import { MediaImageWithLoading } from '@/components/media/MediaImageWithLoading'
 import { resolveTaskPresentationState } from '@/lib/task/presentation'
 import TaskStatusOverlay from '@/components/task/TaskStatusOverlay'
@@ -71,6 +72,7 @@ export function LocationCard({ location, assetType = 'location', onImageClick, o
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
+  const [showImportDialog, setShowImportDialog] = useState(false)
   const latestSelectRequestRef = useRef(0)
 
   // 解析图片
@@ -193,6 +195,20 @@ export function LocationCard({ location, assetType = 'location', onImageClick, o
       }
     )
   }
+
+  // 批量导入图片
+  const handleBatchImport = useCallback(async (files: File[]) => {
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i]
+      const targetIndex = (orderedImages.length + i)
+      await uploadImage.mutateAsync({
+        file,
+        locationId: location.id,
+        labelText: location.name,
+        imageIndex: targetIndex
+      })
+    }
+  }, [location.id, location.name, orderedImages.length, uploadImage])
 
   // 删除场景
   const handleDelete = () => {
@@ -419,17 +435,26 @@ export function LocationCard({ location, assetType = 'location', onImageClick, o
         ) : (
             <div className="flex h-full flex-col items-center justify-center px-4 py-6 text-[var(--glass-text-tertiary)]">
                 <AppIcon name="image" className="w-12 h-12 mb-3" />
-            <ImageGenerationInlineCountButton
-              prefix={<span>{tAssets('image.generateCountPrefix')}</span>}
-              suffix={<span>{tAssets('image.generateCountSuffix')}</span>}
-              value={generationCount}
-              options={getImageGenerationCountOptions('location')}
-              onValueChange={setGenerationCount}
-              onClick={() => handleGenerate(generationCount)}
-              ariaLabel={tAssets('image.selectCount')}
-              className="glass-btn-base glass-btn-primary flex items-center gap-1.5 px-3 py-1.5 text-sm rounded-lg"
-              selectClassName="appearance-none bg-transparent border-0 pl-0 pr-3 text-sm font-semibold text-current outline-none cursor-pointer leading-none transition-colors"
-            />
+                <div className="flex flex-col gap-2">
+                    <button
+                        onClick={() => setShowImportDialog(true)}
+                        className="glass-btn-base glass-btn-primary flex items-center gap-1.5 px-3 py-1.5 text-sm rounded-lg"
+                    >
+                        <AppIcon name="upload" className="w-4 h-4" />
+                        {t('import.button')}
+                    </button>
+                    <ImageGenerationInlineCountButton
+                        prefix={<span>{tAssets('image.generateCountPrefix')}</span>}
+                        suffix={<span>{tAssets('image.generateCountSuffix')}</span>}
+                        value={generationCount}
+                        options={getImageGenerationCountOptions('location')}
+                        onValueChange={setGenerationCount}
+                        onClick={() => handleGenerate(generationCount)}
+                        ariaLabel={tAssets('image.selectCount')}
+                        className="glass-btn-base glass-btn-secondary flex items-center gap-1.5 px-3 py-1.5 text-sm rounded-lg"
+                        selectClassName="appearance-none bg-transparent border-0 pl-0 pr-3 text-sm font-semibold text-current outline-none cursor-pointer leading-none transition-colors"
+                    />
+                </div>
           </div>
         )}
         {isTaskRunning && (
@@ -482,6 +507,14 @@ export function LocationCard({ location, assetType = 'location', onImageClick, o
           </div>
         </div>
       )}
+
+      {/* 导入对话框 */}
+      <ImportDialog
+        open={showImportDialog}
+        onClose={() => setShowImportDialog(false)}
+        onImport={handleBatchImport}
+        title={t('import.title')}
+      />
     </div>
   )
 }
