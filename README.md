@@ -1,36 +1,40 @@
 <p align="center">
-  <a href="https://www.waoowaoo.com/">
-    <img src="images/cta-banner.png" alt="🚀 探索 AI 影视的下一代创作流 | 立即加入 waoowaoo 在线网页版内测候补" width="800">
-  </a>
+  <img src="public/banner.png" alt="New_waoo" width="600">
+</p>
+
+<h1 align="center">New_waoo - waoowaoo 优化版</h1>
+
+<p align="center">
+  基于 waoowaoo 的优化版本，新增 ComfyUI 本地供应商、工作流导入、分镜生成重构、重试功能修复等。
 </p>
 
 <p align="center">
-  <img src="public/banner.png" alt="waoowaoo" width="600">
+  <a href="https://github.com/saturndec/waoowaoo">原始项目</a>
 </p>
-
-<h1 align="center">waoowaoo AI 影视 Studio</h1>
-
-<p align="center">
-  一款基于 AI 技术的短剧/漫画视频制作工具，支持从小说文本自动生成分镜、角色、场景，并制作成完整视频。
-</p>
-
-<p align="center">
-  <a href="README_en.md">English</a> · <a href="https://www.waoowaoo.com/">加入内测候补</a> · <a href="https://github.com/saturndec/waoowaoo/issues">反馈问题</a>
-</p>
-
-> [!IMPORTANT]
-> ⚠️ **测试版声明**：本项目目前处于测试初期阶段，由于暂时只有我一个人开发，存在部分 bug 和不完善之处。我们正在快速迭代更新中，**欢迎进群反馈问题和需求，及时关注项目更新！目前更新会非常频繁，后续会增加大量新功能以及优化效果，我们的目标是成为行业最强AI工具！**
-
-<img src="https://github.com/user-attachments/assets/d190bf41-488d-47df-a5df-06346ef0f2f5" width="30%">
 
 ---
-## ✨ 功能特性
 
-- 🎬 **AI 剧本分析** — 自动解析小说，提取角色、场景、剧情
-- 🎨 **角色 & 场景生成** — AI 生成一致性人物和场景图片
-- 📽️ **分镜视频制作** — 自动生成分镜头并合成视频
-- 🎙️ **AI 配音** — 多角色语音合成
-- 🌐 **多语言支持** — 中文 / 英文界面，右上角一键切换
+## ✨ 新增与优化功能
+
+### ComfyUI 本地供应商
+- 支持连接本地 ComfyUI 服务器
+- 通过 `api.json` 一键导入工作流
+- 9 个预置工作流（图像/视频生成）
+- 工作流管理 UI（导入/选择/删除）
+
+### 分镜生成重构
+- 提取共享工具函数到 `common.ts`，减少 300+ 行重复代码
+- Panel 数据库写入改为批量操作（`createManyAndReturn`）
+- Voice analyze 重试次数 2 → 3
+
+### 重试功能修复
+- 修复前端状态机 `failed → running` 转换死锁
+- 用户点击重试按钮后可正常恢复任务
+
+### 其他优化
+- 删除死代码 `persistStoryboardsAndPanels`
+- 统一 `shouldRetryStepError` 逻辑
+- 共享类型 `ScriptToStoryboardStepMeta` 迁移至公共模块
 
 ---
 
@@ -38,90 +42,25 @@
 
 **前提条件**：安装 [Docker Desktop](https://docs.docker.com/get-docker/)
 
-### 方式一：拉取预构建镜像（最简单）
-
-无需克隆仓库，下载即用：
-
 ```bash
-# 下载 docker-compose.yml
-curl -O https://raw.githubusercontent.com/saturndec/waoowaoo/main/docker-compose.yml
-
-# 启动所有服务
+git clone https://github.com/bsgcz7c295-eng/New_waoo.git
+cd New_waoo
 docker compose up -d
 ```
 
-> ⚠️ 当前为测试版，版本间数据库不兼容。升级请先清除旧数据：
-
-```bash
-docker compose down -v
-docker rmi ghcr.io/saturndec/waoowaoo:latest
-curl -O https://raw.githubusercontent.com/saturndec/waoowaoo/main/docker-compose.yml
-docker compose up -d
-```
-
-> 启动后请**清空浏览器缓存**并重新登录，避免旧版本缓存导致异常。
-
-### 方式二：克隆仓库 + Docker 构建（完全控制）
-
-```bash
-git clone https://github.com/saturndec/waoowaoo.git
-cd waoowaoo
-docker compose up -d
-```
-
-更新版本：
-```bash
-git pull
-docker compose down && docker compose up -d --build
-```
-
-### 方式三：本地开发模式（开发者）
-
-```bash
-git clone https://github.com/saturndec/waoowaoo.git
-cd waoowaoo
-
-# 复制环境变量配置文件（必须在 npm install 之前完成）
-cp .env.example .env
-# ⚠️ 编辑 .env，填入你的 AI API Key（NEXTAUTH_URL 默认已是 http://localhost:3000，无需修改）
-
-npm install
-
-# 只启动基础设施
-# 注意：docker-compose.yml 将服务映射到非标准端口，.env.example 已按此预设
-mysql:13306  redis:16379  minio:19000
-docker compose up mysql redis minio -d
-
-# 初始化数据库表结构（首次必须执行，跳过会导致启动后报错）
-npx prisma db push
-
-# 启动开发服务器
-npm run dev
-```
-
-> [!WARNING]
-> 跳过 `npx prisma db push` 会导致所有数据库表不存在，启动后报错 `The table 'tasks' does not exist`。请务必先运行此命令再启动开发服务器。
+访问 http://localhost:13000
 
 ---
 
-访问 [http://localhost:13000](http://localhost:13000)（方式一、二）或 [http://localhost:3000](http://localhost:3000)（方式三）开始使用！
+## 🔧 配置
 
-> 首次启动会自动完成数据库初始化，无需任何额外配置。
+### AI API Key
+启动后进入**设置中心**配置 AI 服务的 API Key。
 
-> [!TIP]
-> **如果遇到网页卡顿**：HTTP 模式下浏览器可能限制并发连接。可安装 [Caddy](https://caddyserver.com/docs/install) 启用 HTTPS：
-> ```bash
-> caddy run --config Caddyfile
-> ```
-> 然后访问 [https://localhost:1443](https://localhost:1443)
-
----
-
-## 🔧 API 配置
-
-启动后进入**设置中心**配置 AI 服务的 API Key，内置配置教程。
-
-> 💡 **注意**：目前仅推荐使用各服务商官方 API，第三方兼容格式（OpenAI Compatible）尚不完善，后续版本会持续优化。
+### ComfyUI（可选）
+1. 确保本地 ComfyUI 服务器运行中
+2. 在设置中心配置 ComfyUI 地址（如 `http://127.0.0.1:8188`）
+3. 导入工作流（`api.json` 格式）
 
 ---
 
@@ -132,30 +71,26 @@ npm run dev
 - **队列**: Redis + BullMQ
 - **样式**: Tailwind CSS v4
 - **认证**: NextAuth.js
+- **图像生成**: ComfyUI / Fal.ai / 百炼 / SiliconFlow
 
 ---
 
-## 📦 页面功能预览
+## 📝 变更日志
 
-![4f7b913264f7f26438c12560340e958c67fa833a](https://github.com/user-attachments/assets/fa0e9c57-9ea0-4df3-893e-b76c4c9d304b)
-![67509361cbe6809d2496a550de5733b9f99a9702](https://github.com/user-attachments/assets/f2fb6a64-5ba8-4896-a064-be0ded213e42)
-![466e13c8fd1fc799d8f588c367ebfa24e1e99bf7](https://github.com/user-attachments/assets/09bbff39-e535-4c67-80a9-69421c3b05ee)
-![c067c197c20b0f1de456357c49cdf0b0973c9b31](https://github.com/user-attachments/assets/688e3147-6e95-43b0-b9e7-dd9af40db8a0)
-
----
-
-## 🤝 参与方式
-
-本项目由核心团队独立维护。欢迎你通过以下方式参与：
-
-- 🐛 提交 [Issue](https://github.com/saturndec/waoowaoo/issues) 反馈 Bug
-- 💡 提交 [Issue](https://github.com/saturndec/waoowaoo/issues) 提出功能建议
-- 🔧 提交 Pull Request 供参考 — 我们会认真审阅每一个 PR 的思路，但最终由团队自行实现修复，不会直接合并外部 PR
+### v1.0 (2026-06-16)
+- 新增 ComfyUI 本地供应商支持
+- 新增 api.json 工作流导入功能
+- 重构分镜生成模块（common.ts）
+- 优化 panel 数据库写入性能
+- 修复重试功能状态机死锁
+- 提升 voice analyze 重试次数
 
 ---
 
-**Made with ❤️ by waoowaoo team**
+## 📄 许可证
 
-## Star History
+基于原项目 waoowaoo 的 LICENSE。
 
-[![Star History Chart](https://api.star-history.com/svg?repos=saturndec/waoowaoo&type=date&legend=top-left)](https://www.star-history.com/#saturndec/waoowaoo&type=date&legend=top-left)
+---
+
+**Based on [waoowaoo](https://github.com/saturndec/waoowaoo) by waoowaoo team**
