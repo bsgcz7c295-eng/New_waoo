@@ -196,7 +196,7 @@ export function ProviderAdvancedFields({
         </div>
       )}
 
-      {currentType && state.showAddForm === currentType && addableModelTypes.has(currentType) && (
+      {state.showAddForm && addableModelTypes.has(state.showAddForm) && (
         <div className="glass-surface-soft rounded-xl p-3">
           <div className="mb-2.5 flex items-center gap-2">
             <input
@@ -210,7 +210,7 @@ export function ProviderAdvancedFields({
               autoFocus
             />
             <select
-              value={currentType}
+              value={state.showAddForm}
               onChange={(event) => {
                 const newType = event.target.value as ProviderCardModelType
                 state.setShowAddForm(newType)
@@ -235,27 +235,27 @@ export function ProviderAdvancedFields({
                 state.setNewModel({ ...state.newModel, modelId: event.target.value })
               }
               placeholder={t('modelActualId')}
-              className={`glass-input-base flex-1 px-3 py-1.5 text-[12px] font-mono ${currentType === 'video' && state.batchMode && provider.id === 'ark' ? 'rounded-r-none' : ''}`}
+              className={`glass-input-base flex-1 px-3 py-1.5 text-[12px] font-mono ${state.showAddForm === 'video' && state.batchMode && provider.id === 'ark' ? 'rounded-r-none' : ''}`}
             />
-            {currentType === 'video' && state.batchMode && provider.id === 'ark' && (
+            {state.showAddForm === 'video' && state.batchMode && provider.id === 'ark' && (
               <span className="rounded-r-lg bg-[var(--glass-bg-muted)] px-2 py-1.5 font-mono text-[12px] text-[var(--glass-text-secondary)]">
                 -batch
               </span>
             )}
             <button
-              onClick={() => state.handleAddModel(currentType)}
+              onClick={() => state.handleAddModel(state.showAddForm!)}
               disabled={state.isModelSavePending}
               className="glass-btn-base glass-btn-primary px-3 py-1.5 text-[12px] font-medium"
             >
               {state.isModelSavePending ? t('saving') : t('save')}
             </button>
           </div>
-          {shouldShowVideoHint && (
+          {shouldShowVideoHint && state.showAddForm === 'video' && (
             <p className="mt-2 text-xs text-[var(--glass-text-tertiary)]">
               {t('openaiCompatVideoOnlyHint')}
             </p>
           )}
-          {currentType === 'video' && provider.id === 'ark' && (
+          {state.showAddForm === 'video' && provider.id === 'ark' && (
             <div className="mt-2.5 flex items-center gap-2 rounded-lg bg-[var(--glass-bg-muted)] px-2 py-2">
               <button
                 onClick={() => state.setBatchMode(!state.batchMode)}
