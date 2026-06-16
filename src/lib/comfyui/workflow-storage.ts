@@ -100,6 +100,31 @@ export function importWorkflowFromJson(name: string, jsonContent: string): Saved
     throw new Error('Invalid ComfyUI workflow: no nodes with class_type found')
   }
 
-  const id = `wf_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`
-  return saveWorkflow(id, name, workflow)
+  // Try to extract name from workflow JSON, fallback to provided name
+  const workflowName = (workflow as Record<string, unknown>).name
+  const displayName = typeof workflowName === 'string' && workflowName.trim()
+    ? workflowName.trim()
+    : name
+
+  // Generate sanitized ID from the display name
+  const sanitizedId = sanitizeWorkflowId(displayName)
+  
+  // Check for duplicate IDs and append number if needed
+  let id = sanitizedId
+  let counter = 1
+  while (existsSync(join(WORKFLOWS_DIR, `${id}.json`))) {
+    id = `${sanitizedId}-${counter}`
+    counter++
+  }
+
+  return saveWorkflow(id, displayName, workflow)
+}
+
+function sanitizeWorkflowId(name: string): string {
+  return name
+    .toLowerCase()
+    .replace(/[^a-z0-9\u4e00-\u9fa5-]/g, '-')  // Keep Chinese characters, letters, numbers, hyphens
+    .replace(/-+/g, '-')  // Collapse multiple hyphens
+    .replace(/^-|-$/g, '')  // Remove leading/trailing hyphens
+    || `wf-${Date.now()}`  // Fallback if name is empty after sanitization
 }
