@@ -1,0 +1,3360 @@
+{
+  "id": "qwen-wan22-img2vid",
+  "name": "Qwen编辑+Wan2.2 图生视频",
+  "createdAt": "2026-06-15T18:12:59.0577444+08:00",
+  "typeLabel": "自定义",
+  "type": "custom",
+  "workflow": {
+    "3": {
+      "inputs": {
+        "value": 8
+      },
+      "class_type": "PrimitiveInt",
+      "_meta": {
+        "title": "Steps"
+      }
+    },
+    "6": {
+      "inputs": {
+        "add_noise": "disable",
+        "noise_seed": [
+          "43",
+          0
+        ],
+        "steps": [
+          "3",
+          0
+        ],
+        "cfg": 1,
+        "sampler_name": "euler",
+        "scheduler": "beta",
+        "start_at_step": 2,
+        "end_at_step": 4,
+        "return_with_leftover_noise": "enable",
+        "model": [
+          "91",
+          0
+        ],
+        "positive": [
+          "111",
+          0
+        ],
+        "negative": [
+          "111",
+          1
+        ],
+        "latent_image": [
+          "159",
+          0
+        ]
+      },
+      "class_type": "KSamplerAdvanced",
+      "_meta": {
+        "title": "K采样器（高级）"
+      }
+    },
+    "7": {
+      "inputs": {
+        "add_noise": "disable",
+        "noise_seed": [
+          "43",
+          0
+        ],
+        "steps": [
+          "3",
+          0
+        ],
+        "cfg": 1,
+        "sampler_name": "euler",
+        "scheduler": "beta",
+        "start_at_step": 4,
+        "end_at_step": [
+          "3",
+          0
+        ],
+        "return_with_leftover_noise": "disable",
+        "model": [
+          "39",
+          0
+        ],
+        "positive": [
+          "111",
+          0
+        ],
+        "negative": [
+          "111",
+          1
+        ],
+        "latent_image": [
+          "6",
+          0
+        ]
+      },
+      "class_type": "KSamplerAdvanced",
+      "_meta": {
+        "title": "K采样器（高级）"
+      }
+    },
+    "9": {
+      "inputs": {
+        "samples": [
+          "7",
+          0
+        ],
+        "vae": [
+          "14",
+          0
+        ]
+      },
+      "class_type": "VAEDecode",
+      "_meta": {
+        "title": "VAE解码"
+      }
+    },
+    "12": {
+      "inputs": {
+        "clip_name": "Qwen\\umt5_xxl_fp16.safetensors",
+        "type": "wan",
+        "device": "default"
+      },
+      "class_type": "CLIPLoader",
+      "_meta": {
+        "title": "加载CLIP"
+      }
+    },
+    "14": {
+      "inputs": {
+        "vae_name": "wan\\wan_2.1_vae.safetensors"
+      },
+      "class_type": "VAELoader",
+      "_meta": {
+        "title": "加载VAE"
+      }
+    },
+    "21": {
+      "inputs": {
+        "unet_name": "wan\\smoothMixWan22I2V14B_i2vLow.safetensors",
+        "weight_dtype": "default"
+      },
+      "class_type": "UNETLoader",
+      "_meta": {
+        "title": "UNet加载器"
+      }
+    },
+    "22": {
+      "inputs": {
+        "sage_attention": "auto",
+        "allow_compile": false,
+        "model": [
+          "21",
+          0
+        ]
+      },
+      "class_type": "PathchSageAttentionKJ",
+      "_meta": {
+        "title": "Patch Sage Attention KJ"
+      }
+    },
+    "24": {
+      "inputs": {
+        "unet_name": "wan\\smoothMixWan22I2V14B_i2vHigh.safetensors",
+        "weight_dtype": "default"
+      },
+      "class_type": "UNETLoader",
+      "_meta": {
+        "title": "UNet加载器"
+      }
+    },
+    "27": {
+      "inputs": {
+        "shift": [
+          "314",
+          0
+        ],
+        "model": [
+          "24",
+          0
+        ]
+      },
+      "class_type": "ModelSamplingSD3",
+      "_meta": {
+        "title": "采样算法（SD3）"
+      }
+    },
+    "39": {
+      "inputs": {
+        "shift": [
+          "314",
+          0
+        ],
+        "model": [
+          "92",
+          0
+        ]
+      },
+      "class_type": "ModelSamplingSD3",
+      "_meta": {
+        "title": "采样算法（SD3）"
+      }
+    },
+    "43": {
+      "inputs": {
+        "seed": 582106619304621
+      },
+      "class_type": "easy seed",
+      "_meta": {
+        "title": "随机种"
+      }
+    },
+    "45": {
+      "inputs": {
+        "text": "色调艳丽，过曝，静态，细节模糊不清，字幕，风格，作品，画作，画面，静止，整体发灰，最差质量，低质量，JPEG压缩残留，丑陋的，残缺的，多余的手指，画得不好的手部，画得不好的脸部，畸形的，毁容的，形态畸形的肢体，手指融合，静止不动的画面，杂乱的背景，三条腿，背景人很多，倒着走",
+        "clip": [
+          "12",
+          0
+        ]
+      },
+      "class_type": "CLIPTextEncode",
+      "_meta": {
+        "title": "CLIP文本编码"
+      }
+    },
+    "48": {
+      "inputs": {
+        "text": [
+          "93",
+          0
+        ],
+        "clip": [
+          "12",
+          0
+        ]
+      },
+      "class_type": "CLIPTextEncode",
+      "_meta": {
+        "title": "Prompt 01"
+      }
+    },
+    "53": {
+      "inputs": {
+        "frame_rate": 16,
+        "loop_count": 0,
+        "filename_prefix": "Scene1",
+        "format": "video/h264-mp4",
+        "pix_fmt": "yuv420p",
+        "crf": 19,
+        "save_metadata": true,
+        "trim_to_audio": false,
+        "pingpong": false,
+        "save_output": true,
+        "images": [
+          "9",
+          0
+        ]
+      },
+      "class_type": "VHS_VideoCombine",
+      "_meta": {
+        "title": "Video Combine 🎥🅥🅗🅢"
+      }
+    },
+    "89": {
+      "inputs": {
+        "lora_name": "wan\\high_noise_model_rank64.safetensors",
+        "strength_model": 1,
+        "model": [
+          "160",
+          0
+        ]
+      },
+      "class_type": "LoraLoaderModelOnly",
+      "_meta": {
+        "title": "LoRA加载器（仅模型）"
+      }
+    },
+    "90": {
+      "inputs": {
+        "lora_name": "wan\\low_noise_model_rank64.safetensors",
+        "strength_model": 1,
+        "model": [
+          "22",
+          0
+        ]
+      },
+      "class_type": "LoraLoaderModelOnly",
+      "_meta": {
+        "title": "LoRA加载器（仅模型）"
+      }
+    },
+    "91": {
+      "inputs": {
+        "lora_name": "wan\\Wan2.2-Fun-A14B-InP-high-noise-MPS.safetensors",
+        "strength_model": 1,
+        "model": [
+          "89",
+          0
+        ]
+      },
+      "class_type": "LoraLoaderModelOnly",
+      "_meta": {
+        "title": "LoRA加载器（仅模型）"
+      }
+    },
+    "92": {
+      "inputs": {
+        "lora_name": "wan\\Wan2.2-Fun-A14B-InP-low-noise-MPS.safetensors",
+        "strength_model": 1,
+        "model": [
+          "90",
+          0
+        ]
+      },
+      "class_type": "LoraLoaderModelOnly",
+      "_meta": {
+        "title": "LoRA加载器（仅模型）"
+      }
+    },
+    "93": {
+      "inputs": {
+        "string_a": "A woman in a long flowing dress stands ankle-deep in the ocean at dawn. The horizon glows pale gold, waves whisper against the sand. A broken conch shell lies at her feet, humming faintly with an otherworldly sound. Wide cinematic shot, natural morning light, lens flare, mist in the air, poetic melancholy.",
+        "string_b": "ultra realistic , 4K, UHD, ray trace.",
+        "delimiter": " "
+      },
+      "class_type": "StringConcatenate",
+      "_meta": {
+        "title": "连接"
+      }
+    },
+    "94": {
+      "inputs": {
+        "ckpt_name": "rife47.pth",
+        "clear_cache_after_n_frames": 10,
+        "multiplier": 2,
+        "fast_mode": true,
+        "ensemble": true,
+        "scale_factor": 1,
+        "dtype": "float32",
+        "torch_compile": false,
+        "batch_size": 1,
+        "frames": [
+          "308",
+          0
+        ]
+      },
+      "class_type": "RIFE VFI",
+      "_meta": {
+        "title": "RIFE VFI (recommend rife47 and rife49)"
+      }
+    },
+    "97": {
+      "inputs": {
+        "frame_rate": 32,
+        "loop_count": 0,
+        "filename_prefix": "Interpolated",
+        "format": "video/h264-mp4",
+        "pix_fmt": "yuv420p",
+        "crf": 19,
+        "save_metadata": false,
+        "trim_to_audio": false,
+        "pingpong": false,
+        "save_output": true,
+        "images": [
+          "94",
+          0
+        ]
+      },
+      "class_type": "VHS_VideoCombine",
+      "_meta": {
+        "title": "Video Combine 🎥🅥🅗🅢"
+      }
+    },
+    "111": {
+      "inputs": {
+        "width": [
+          "112",
+          0
+        ],
+        "height": [
+          "115",
+          0
+        ],
+        "length": [
+          "120",
+          0
+        ],
+        "batch_size": 1,
+        "positive": [
+          "48",
+          0
+        ],
+        "negative": [
+          "45",
+          0
+        ],
+        "vae": [
+          "14",
+          0
+        ],
+        "start_image": [
+          "155",
+          0
+        ]
+      },
+      "class_type": "WanImageToVideo",
+      "_meta": {
+        "title": "图像到视频（Wan）"
+      }
+    },
+    "112": {
+      "inputs": {
+        "value": 832
+      },
+      "class_type": "PrimitiveInt",
+      "_meta": {
+        "title": "Int - Width"
+      }
+    },
+    "115": {
+      "inputs": {
+        "value": 480
+      },
+      "class_type": "PrimitiveInt",
+      "_meta": {
+        "title": "Int - Height"
+      }
+    },
+    "120": {
+      "inputs": {
+        "value": 81
+      },
+      "class_type": "PrimitiveInt",
+      "_meta": {
+        "title": "Int - Length"
+      }
+    },
+    "155": {
+      "inputs": {
+        "width": [
+          "112",
+          0
+        ],
+        "height": [
+          "115",
+          0
+        ],
+        "upscale_method": "nearest-exact",
+        "keep_proportion": "crop",
+        "pad_color": "0, 0, 0",
+        "crop_position": "center",
+        "divisible_by": 16,
+        "device": "cpu",
+        "image": [
+          "270",
+          0
+        ]
+      },
+      "class_type": "ImageResizeKJv2",
+      "_meta": {
+        "title": "Resize Image v2"
+      }
+    },
+    "159": {
+      "inputs": {
+        "add_noise": "enable",
+        "noise_seed": [
+          "43",
+          0
+        ],
+        "steps": [
+          "3",
+          0
+        ],
+        "cfg": 1,
+        "sampler_name": "euler",
+        "scheduler": "beta",
+        "start_at_step": 0,
+        "end_at_step": 2,
+        "return_with_leftover_noise": "enable",
+        "model": [
+          "27",
+          0
+        ],
+        "positive": [
+          "111",
+          0
+        ],
+        "negative": [
+          "111",
+          1
+        ],
+        "latent_image": [
+          "111",
+          2
+        ]
+      },
+      "class_type": "KSamplerAdvanced",
+      "_meta": {
+        "title": "K采样器（高级）"
+      }
+    },
+    "160": {
+      "inputs": {
+        "sage_attention": "auto",
+        "allow_compile": false,
+        "model": [
+          "161",
+          0
+        ]
+      },
+      "class_type": "PathchSageAttentionKJ",
+      "_meta": {
+        "title": "Patch Sage Attention KJ"
+      }
+    },
+    "161": {
+      "inputs": {
+        "backend": "inductor",
+        "model": [
+          "27",
+          0
+        ]
+      },
+      "class_type": "TorchCompileModel",
+      "_meta": {
+        "title": "Torch编译模型"
+      }
+    },
+    "172": {
+      "inputs": {
+        "add_noise": "disable",
+        "noise_seed": [
+          "43",
+          0
+        ],
+        "steps": [
+          "3",
+          0
+        ],
+        "cfg": 1,
+        "sampler_name": "euler",
+        "scheduler": "beta",
+        "start_at_step": 4,
+        "end_at_step": [
+          "3",
+          0
+        ],
+        "return_with_leftover_noise": "disable",
+        "model": [
+          "180",
+          0
+        ],
+        "positive": [
+          "182",
+          0
+        ],
+        "negative": [
+          "182",
+          1
+        ],
+        "latent_image": [
+          "173",
+          0
+        ]
+      },
+      "class_type": "KSamplerAdvanced",
+      "_meta": {
+        "title": "K采样器（高级）"
+      }
+    },
+    "173": {
+      "inputs": {
+        "add_noise": "disable",
+        "noise_seed": [
+          "43",
+          0
+        ],
+        "steps": [
+          "3",
+          0
+        ],
+        "cfg": 1,
+        "sampler_name": "euler",
+        "scheduler": "beta",
+        "start_at_step": 2,
+        "end_at_step": 4,
+        "return_with_leftover_noise": "enable",
+        "model": [
+          "91",
+          0
+        ],
+        "positive": [
+          "182",
+          0
+        ],
+        "negative": [
+          "182",
+          1
+        ],
+        "latent_image": [
+          "174",
+          0
+        ]
+      },
+      "class_type": "KSamplerAdvanced",
+      "_meta": {
+        "title": "K采样器（高级）"
+      }
+    },
+    "174": {
+      "inputs": {
+        "add_noise": "enable",
+        "noise_seed": [
+          "43",
+          0
+        ],
+        "steps": [
+          "3",
+          0
+        ],
+        "cfg": 1,
+        "sampler_name": "euler",
+        "scheduler": "beta",
+        "start_at_step": 0,
+        "end_at_step": 2,
+        "return_with_leftover_noise": "enable",
+        "model": [
+          "27",
+          0
+        ],
+        "positive": [
+          "182",
+          0
+        ],
+        "negative": [
+          "182",
+          1
+        ],
+        "latent_image": [
+          "182",
+          2
+        ]
+      },
+      "class_type": "KSamplerAdvanced",
+      "_meta": {
+        "title": "K采样器（高级）"
+      }
+    },
+    "178": {
+      "inputs": {
+        "samples": [
+          "172",
+          0
+        ],
+        "vae": [
+          "14",
+          0
+        ]
+      },
+      "class_type": "VAEDecode",
+      "_meta": {
+        "title": "VAE解码"
+      }
+    },
+    "180": {
+      "inputs": {
+        "shift": [
+          "314",
+          0
+        ],
+        "model": [
+          "92",
+          0
+        ]
+      },
+      "class_type": "ModelSamplingSD3",
+      "_meta": {
+        "title": "采样算法（SD3）"
+      }
+    },
+    "182": {
+      "inputs": {
+        "width": [
+          "112",
+          0
+        ],
+        "height": [
+          "115",
+          0
+        ],
+        "length": [
+          "120",
+          0
+        ],
+        "batch_size": 1,
+        "positive": [
+          "277",
+          0
+        ],
+        "negative": [
+          "45",
+          0
+        ],
+        "vae": [
+          "14",
+          0
+        ],
+        "start_image": [
+          "278",
+          0
+        ]
+      },
+      "class_type": "WanImageToVideo",
+      "_meta": {
+        "title": "图像到视频（Wan）"
+      }
+    },
+    "187": {
+      "inputs": {
+        "frame_rate": 16,
+        "loop_count": 0,
+        "filename_prefix": "Scene2",
+        "format": "video/h264-mp4",
+        "pix_fmt": "yuv420p",
+        "crf": 19,
+        "save_metadata": true,
+        "trim_to_audio": false,
+        "pingpong": false,
+        "save_output": true,
+        "images": [
+          "178",
+          0
+        ]
+      },
+      "class_type": "VHS_VideoCombine",
+      "_meta": {
+        "title": "Video Combine 🎥🅥🅗🅢"
+      }
+    },
+    "192": {
+      "inputs": {
+        "add_noise": "disable",
+        "noise_seed": [
+          "43",
+          0
+        ],
+        "steps": [
+          "3",
+          0
+        ],
+        "cfg": 1,
+        "sampler_name": "euler",
+        "scheduler": "beta",
+        "start_at_step": 4,
+        "end_at_step": [
+          "3",
+          0
+        ],
+        "return_with_leftover_noise": "disable",
+        "model": [
+          "200",
+          0
+        ],
+        "positive": [
+          "202",
+          0
+        ],
+        "negative": [
+          "202",
+          1
+        ],
+        "latent_image": [
+          "193",
+          0
+        ]
+      },
+      "class_type": "KSamplerAdvanced",
+      "_meta": {
+        "title": "K采样器（高级）"
+      }
+    },
+    "193": {
+      "inputs": {
+        "add_noise": "disable",
+        "noise_seed": [
+          "43",
+          0
+        ],
+        "steps": [
+          "3",
+          0
+        ],
+        "cfg": 1,
+        "sampler_name": "euler",
+        "scheduler": "beta",
+        "start_at_step": 2,
+        "end_at_step": 4,
+        "return_with_leftover_noise": "enable",
+        "model": [
+          "91",
+          0
+        ],
+        "positive": [
+          "202",
+          0
+        ],
+        "negative": [
+          "202",
+          1
+        ],
+        "latent_image": [
+          "194",
+          0
+        ]
+      },
+      "class_type": "KSamplerAdvanced",
+      "_meta": {
+        "title": "K采样器（高级）"
+      }
+    },
+    "194": {
+      "inputs": {
+        "add_noise": "enable",
+        "noise_seed": [
+          "43",
+          0
+        ],
+        "steps": [
+          "3",
+          0
+        ],
+        "cfg": 1,
+        "sampler_name": "euler",
+        "scheduler": "beta",
+        "start_at_step": 0,
+        "end_at_step": 2,
+        "return_with_leftover_noise": "enable",
+        "model": [
+          "27",
+          0
+        ],
+        "positive": [
+          "202",
+          0
+        ],
+        "negative": [
+          "202",
+          1
+        ],
+        "latent_image": [
+          "202",
+          2
+        ]
+      },
+      "class_type": "KSamplerAdvanced",
+      "_meta": {
+        "title": "K采样器（高级）"
+      }
+    },
+    "198": {
+      "inputs": {
+        "samples": [
+          "192",
+          0
+        ],
+        "vae": [
+          "14",
+          0
+        ]
+      },
+      "class_type": "VAEDecode",
+      "_meta": {
+        "title": "VAE解码"
+      }
+    },
+    "200": {
+      "inputs": {
+        "shift": [
+          "314",
+          0
+        ],
+        "model": [
+          "92",
+          0
+        ]
+      },
+      "class_type": "ModelSamplingSD3",
+      "_meta": {
+        "title": "采样算法（SD3）"
+      }
+    },
+    "202": {
+      "inputs": {
+        "width": [
+          "112",
+          0
+        ],
+        "height": [
+          "115",
+          0
+        ],
+        "length": [
+          "120",
+          0
+        ],
+        "batch_size": 1,
+        "positive": [
+          "284",
+          0
+        ],
+        "negative": [
+          "45",
+          0
+        ],
+        "vae": [
+          "14",
+          0
+        ],
+        "start_image": [
+          "285",
+          0
+        ]
+      },
+      "class_type": "WanImageToVideo",
+      "_meta": {
+        "title": "图像到视频（Wan）"
+      }
+    },
+    "207": {
+      "inputs": {
+        "frame_rate": 16,
+        "loop_count": 0,
+        "filename_prefix": "Scene3",
+        "format": "video/h264-mp4",
+        "pix_fmt": "yuv420p",
+        "crf": 19,
+        "save_metadata": true,
+        "trim_to_audio": false,
+        "pingpong": false,
+        "save_output": true,
+        "images": [
+          "198",
+          0
+        ]
+      },
+      "class_type": "VHS_VideoCombine",
+      "_meta": {
+        "title": "Video Combine 🎥🅥🅗🅢"
+      }
+    },
+    "212": {
+      "inputs": {
+        "add_noise": "disable",
+        "noise_seed": [
+          "43",
+          0
+        ],
+        "steps": [
+          "3",
+          0
+        ],
+        "cfg": 1,
+        "sampler_name": "euler",
+        "scheduler": "beta",
+        "start_at_step": 4,
+        "end_at_step": [
+          "3",
+          0
+        ],
+        "return_with_leftover_noise": "disable",
+        "model": [
+          "220",
+          0
+        ],
+        "positive": [
+          "222",
+          0
+        ],
+        "negative": [
+          "222",
+          1
+        ],
+        "latent_image": [
+          "213",
+          0
+        ]
+      },
+      "class_type": "KSamplerAdvanced",
+      "_meta": {
+        "title": "K采样器（高级）"
+      }
+    },
+    "213": {
+      "inputs": {
+        "add_noise": "disable",
+        "noise_seed": [
+          "43",
+          0
+        ],
+        "steps": [
+          "3",
+          0
+        ],
+        "cfg": 1,
+        "sampler_name": "euler",
+        "scheduler": "beta",
+        "start_at_step": 2,
+        "end_at_step": 4,
+        "return_with_leftover_noise": "enable",
+        "model": [
+          "91",
+          0
+        ],
+        "positive": [
+          "222",
+          0
+        ],
+        "negative": [
+          "222",
+          1
+        ],
+        "latent_image": [
+          "214",
+          0
+        ]
+      },
+      "class_type": "KSamplerAdvanced",
+      "_meta": {
+        "title": "K采样器（高级）"
+      }
+    },
+    "214": {
+      "inputs": {
+        "add_noise": "enable",
+        "noise_seed": [
+          "43",
+          0
+        ],
+        "steps": [
+          "3",
+          0
+        ],
+        "cfg": 1,
+        "sampler_name": "euler",
+        "scheduler": "beta",
+        "start_at_step": 0,
+        "end_at_step": 2,
+        "return_with_leftover_noise": "enable",
+        "model": [
+          "27",
+          0
+        ],
+        "positive": [
+          "222",
+          0
+        ],
+        "negative": [
+          "222",
+          1
+        ],
+        "latent_image": [
+          "222",
+          2
+        ]
+      },
+      "class_type": "KSamplerAdvanced",
+      "_meta": {
+        "title": "K采样器（高级）"
+      }
+    },
+    "218": {
+      "inputs": {
+        "samples": [
+          "212",
+          0
+        ],
+        "vae": [
+          "14",
+          0
+        ]
+      },
+      "class_type": "VAEDecode",
+      "_meta": {
+        "title": "VAE解码"
+      }
+    },
+    "220": {
+      "inputs": {
+        "shift": [
+          "314",
+          0
+        ],
+        "model": [
+          "92",
+          0
+        ]
+      },
+      "class_type": "ModelSamplingSD3",
+      "_meta": {
+        "title": "采样算法（SD3）"
+      }
+    },
+    "222": {
+      "inputs": {
+        "width": [
+          "112",
+          0
+        ],
+        "height": [
+          "115",
+          0
+        ],
+        "length": [
+          "120",
+          0
+        ],
+        "batch_size": 1,
+        "positive": [
+          "291",
+          0
+        ],
+        "negative": [
+          "45",
+          0
+        ],
+        "vae": [
+          "14",
+          0
+        ],
+        "start_image": [
+          "292",
+          0
+        ]
+      },
+      "class_type": "WanImageToVideo",
+      "_meta": {
+        "title": "图像到视频（Wan）"
+      }
+    },
+    "227": {
+      "inputs": {
+        "frame_rate": 16,
+        "loop_count": 0,
+        "filename_prefix": "Scene4",
+        "format": "video/h264-mp4",
+        "pix_fmt": "yuv420p",
+        "crf": 19,
+        "save_metadata": true,
+        "trim_to_audio": false,
+        "pingpong": false,
+        "save_output": true,
+        "images": [
+          "218",
+          0
+        ]
+      },
+      "class_type": "VHS_VideoCombine",
+      "_meta": {
+        "title": "Video Combine 🎥🅥🅗🅢"
+      }
+    },
+    "232": {
+      "inputs": {
+        "add_noise": "disable",
+        "noise_seed": [
+          "43",
+          0
+        ],
+        "steps": [
+          "3",
+          0
+        ],
+        "cfg": 1,
+        "sampler_name": "euler",
+        "scheduler": "beta",
+        "start_at_step": 4,
+        "end_at_step": [
+          "3",
+          0
+        ],
+        "return_with_leftover_noise": "disable",
+        "model": [
+          "240",
+          0
+        ],
+        "positive": [
+          "242",
+          0
+        ],
+        "negative": [
+          "242",
+          1
+        ],
+        "latent_image": [
+          "233",
+          0
+        ]
+      },
+      "class_type": "KSamplerAdvanced",
+      "_meta": {
+        "title": "K采样器（高级）"
+      }
+    },
+    "233": {
+      "inputs": {
+        "add_noise": "disable",
+        "noise_seed": [
+          "43",
+          0
+        ],
+        "steps": [
+          "3",
+          0
+        ],
+        "cfg": 1,
+        "sampler_name": "euler",
+        "scheduler": "beta",
+        "start_at_step": 2,
+        "end_at_step": 4,
+        "return_with_leftover_noise": "enable",
+        "model": [
+          "91",
+          0
+        ],
+        "positive": [
+          "242",
+          0
+        ],
+        "negative": [
+          "242",
+          1
+        ],
+        "latent_image": [
+          "234",
+          0
+        ]
+      },
+      "class_type": "KSamplerAdvanced",
+      "_meta": {
+        "title": "K采样器（高级）"
+      }
+    },
+    "234": {
+      "inputs": {
+        "add_noise": "enable",
+        "noise_seed": [
+          "43",
+          0
+        ],
+        "steps": [
+          "3",
+          0
+        ],
+        "cfg": 1,
+        "sampler_name": "euler",
+        "scheduler": "beta",
+        "start_at_step": 0,
+        "end_at_step": 2,
+        "return_with_leftover_noise": "enable",
+        "model": [
+          "27",
+          0
+        ],
+        "positive": [
+          "242",
+          0
+        ],
+        "negative": [
+          "242",
+          1
+        ],
+        "latent_image": [
+          "242",
+          2
+        ]
+      },
+      "class_type": "KSamplerAdvanced",
+      "_meta": {
+        "title": "K采样器（高级）"
+      }
+    },
+    "238": {
+      "inputs": {
+        "samples": [
+          "232",
+          0
+        ],
+        "vae": [
+          "14",
+          0
+        ]
+      },
+      "class_type": "VAEDecode",
+      "_meta": {
+        "title": "VAE解码"
+      }
+    },
+    "240": {
+      "inputs": {
+        "shift": [
+          "314",
+          0
+        ],
+        "model": [
+          "92",
+          0
+        ]
+      },
+      "class_type": "ModelSamplingSD3",
+      "_meta": {
+        "title": "采样算法（SD3）"
+      }
+    },
+    "242": {
+      "inputs": {
+        "width": [
+          "112",
+          0
+        ],
+        "height": [
+          "115",
+          0
+        ],
+        "length": [
+          "120",
+          0
+        ],
+        "batch_size": 1,
+        "positive": [
+          "298",
+          0
+        ],
+        "negative": [
+          "45",
+          0
+        ],
+        "vae": [
+          "14",
+          0
+        ],
+        "start_image": [
+          "299",
+          0
+        ]
+      },
+      "class_type": "WanImageToVideo",
+      "_meta": {
+        "title": "图像到视频（Wan）"
+      }
+    },
+    "247": {
+      "inputs": {
+        "frame_rate": 16,
+        "loop_count": 0,
+        "filename_prefix": "Scene5",
+        "format": "video/h264-mp4",
+        "pix_fmt": "yuv420p",
+        "crf": 19,
+        "save_metadata": true,
+        "trim_to_audio": false,
+        "pingpong": false,
+        "save_output": true,
+        "images": [
+          "238",
+          0
+        ]
+      },
+      "class_type": "VHS_VideoCombine",
+      "_meta": {
+        "title": "Video Combine 🎥🅥🅗🅢"
+      }
+    },
+    "252": {
+      "inputs": {
+        "add_noise": "disable",
+        "noise_seed": [
+          "43",
+          0
+        ],
+        "steps": [
+          "3",
+          0
+        ],
+        "cfg": 1,
+        "sampler_name": "euler",
+        "scheduler": "beta",
+        "start_at_step": 4,
+        "end_at_step": [
+          "3",
+          0
+        ],
+        "return_with_leftover_noise": "disable",
+        "model": [
+          "260",
+          0
+        ],
+        "positive": [
+          "262",
+          0
+        ],
+        "negative": [
+          "262",
+          1
+        ],
+        "latent_image": [
+          "253",
+          0
+        ]
+      },
+      "class_type": "KSamplerAdvanced",
+      "_meta": {
+        "title": "K采样器（高级）"
+      }
+    },
+    "253": {
+      "inputs": {
+        "add_noise": "disable",
+        "noise_seed": [
+          "43",
+          0
+        ],
+        "steps": [
+          "3",
+          0
+        ],
+        "cfg": 1,
+        "sampler_name": "euler",
+        "scheduler": "beta",
+        "start_at_step": 2,
+        "end_at_step": 4,
+        "return_with_leftover_noise": "enable",
+        "model": [
+          "91",
+          0
+        ],
+        "positive": [
+          "262",
+          0
+        ],
+        "negative": [
+          "262",
+          1
+        ],
+        "latent_image": [
+          "254",
+          0
+        ]
+      },
+      "class_type": "KSamplerAdvanced",
+      "_meta": {
+        "title": "K采样器（高级）"
+      }
+    },
+    "254": {
+      "inputs": {
+        "add_noise": "enable",
+        "noise_seed": [
+          "43",
+          0
+        ],
+        "steps": [
+          "3",
+          0
+        ],
+        "cfg": 1,
+        "sampler_name": "euler",
+        "scheduler": "beta",
+        "start_at_step": 0,
+        "end_at_step": 2,
+        "return_with_leftover_noise": "enable",
+        "model": [
+          "27",
+          0
+        ],
+        "positive": [
+          "262",
+          0
+        ],
+        "negative": [
+          "262",
+          1
+        ],
+        "latent_image": [
+          "262",
+          2
+        ]
+      },
+      "class_type": "KSamplerAdvanced",
+      "_meta": {
+        "title": "K采样器（高级）"
+      }
+    },
+    "258": {
+      "inputs": {
+        "samples": [
+          "252",
+          0
+        ],
+        "vae": [
+          "14",
+          0
+        ]
+      },
+      "class_type": "VAEDecode",
+      "_meta": {
+        "title": "VAE解码"
+      }
+    },
+    "260": {
+      "inputs": {
+        "shift": [
+          "314",
+          0
+        ],
+        "model": [
+          "92",
+          0
+        ]
+      },
+      "class_type": "ModelSamplingSD3",
+      "_meta": {
+        "title": "采样算法（SD3）"
+      }
+    },
+    "262": {
+      "inputs": {
+        "width": [
+          "112",
+          0
+        ],
+        "height": [
+          "115",
+          0
+        ],
+        "length": [
+          "120",
+          0
+        ],
+        "batch_size": 1,
+        "positive": [
+          "305",
+          0
+        ],
+        "negative": [
+          "45",
+          0
+        ],
+        "vae": [
+          "14",
+          0
+        ],
+        "start_image": [
+          "306",
+          0
+        ]
+      },
+      "class_type": "WanImageToVideo",
+      "_meta": {
+        "title": "图像到视频（Wan）"
+      }
+    },
+    "267": {
+      "inputs": {
+        "frame_rate": 16,
+        "loop_count": 0,
+        "filename_prefix": "Scene6",
+        "format": "video/h264-mp4",
+        "pix_fmt": "yuv420p",
+        "crf": 19,
+        "save_metadata": true,
+        "trim_to_audio": false,
+        "pingpong": false,
+        "save_output": true,
+        "images": [
+          "258",
+          0
+        ]
+      },
+      "class_type": "VHS_VideoCombine",
+      "_meta": {
+        "title": "Video Combine 🎥🅥🅗🅢"
+      }
+    },
+    "270": {
+      "inputs": {
+        "image": "Runcmfy_Example_1305_1.png"
+      },
+      "class_type": "LoadImage",
+      "_meta": {
+        "title": "加载图像"
+      }
+    },
+    "272": {
+      "inputs": {
+        "string_a": "he kneels, pressing the conch to her ear. The whisper turns into a melody — echoes of a voice calling her name from deep underwater. Medium close-up, warm light blending with cool ocean tones, shallow DOF, intimate handheld framing.",
+        "string_b": "ultra realistic , 4K, UHD, ray trace.",
+        "delimiter": " "
+      },
+      "class_type": "StringConcatenate",
+      "_meta": {
+        "title": "连接"
+      }
+    },
+    "276": {
+      "inputs": {
+        "image": "Runcmfy_Example_1305_2.png"
+      },
+      "class_type": "LoadImage",
+      "_meta": {
+        "title": "加载图像"
+      }
+    },
+    "277": {
+      "inputs": {
+        "text": [
+          "272",
+          0
+        ],
+        "clip": [
+          "12",
+          0
+        ]
+      },
+      "class_type": "CLIPTextEncode",
+      "_meta": {
+        "title": "Prompt 01"
+      }
+    },
+    "278": {
+      "inputs": {
+        "width": [
+          "112",
+          0
+        ],
+        "height": [
+          "115",
+          0
+        ],
+        "upscale_method": "nearest-exact",
+        "keep_proportion": "crop",
+        "pad_color": "0, 0, 0",
+        "crop_position": "center",
+        "divisible_by": 16,
+        "device": "cpu",
+        "image": [
+          "276",
+          0
+        ]
+      },
+      "class_type": "ImageResizeKJv2",
+      "_meta": {
+        "title": "Resize Image v2"
+      }
+    },
+    "279": {
+      "inputs": {
+        "string_a": "A boy seeing the sunset soft golden haze, reflective wet sand, emotional stillness, cinematic closure.",
+        "string_b": "ultra realistic , 4K, UHD, ray trace.",
+        "delimiter": " "
+      },
+      "class_type": "StringConcatenate",
+      "_meta": {
+        "title": "连接"
+      }
+    },
+    "283": {
+      "inputs": {
+        "image": "Runcmfy_Example_1305_3.png"
+      },
+      "class_type": "LoadImage",
+      "_meta": {
+        "title": "加载图像"
+      }
+    },
+    "284": {
+      "inputs": {
+        "text": [
+          "279",
+          0
+        ],
+        "clip": [
+          "12",
+          0
+        ]
+      },
+      "class_type": "CLIPTextEncode",
+      "_meta": {
+        "title": "Prompt 01"
+      }
+    },
+    "285": {
+      "inputs": {
+        "width": [
+          "112",
+          0
+        ],
+        "height": [
+          "115",
+          0
+        ],
+        "upscale_method": "nearest-exact",
+        "keep_proportion": "crop",
+        "pad_color": "0, 0, 0",
+        "crop_position": "center",
+        "divisible_by": 16,
+        "device": "cpu",
+        "image": [
+          "283",
+          0
+        ]
+      },
+      "class_type": "ImageResizeKJv2",
+      "_meta": {
+        "title": "Resize Image v2"
+      }
+    },
+    "286": {
+      "inputs": {
+        "string_a": "the female walks away from the body , soft golden haze, reflective wet sand, emotional stillness, cinematic closure.",
+        "string_b": "ultra realistic , 4K, UHD, ray trace.",
+        "delimiter": " "
+      },
+      "class_type": "StringConcatenate",
+      "_meta": {
+        "title": "连接"
+      }
+    },
+    "290": {
+      "inputs": {
+        "image": "Runcmfy_Example_1305_4.png"
+      },
+      "class_type": "LoadImage",
+      "_meta": {
+        "title": "加载图像"
+      }
+    },
+    "291": {
+      "inputs": {
+        "text": [
+          "286",
+          0
+        ],
+        "clip": [
+          "12",
+          0
+        ]
+      },
+      "class_type": "CLIPTextEncode",
+      "_meta": {
+        "title": "Prompt 01"
+      }
+    },
+    "292": {
+      "inputs": {
+        "width": [
+          "112",
+          0
+        ],
+        "height": [
+          "115",
+          0
+        ],
+        "upscale_method": "nearest-exact",
+        "keep_proportion": "crop",
+        "pad_color": "0, 0, 0",
+        "crop_position": "center",
+        "divisible_by": 16,
+        "device": "cpu",
+        "image": [
+          "290",
+          0
+        ]
+      },
+      "class_type": "ImageResizeKJv2",
+      "_meta": {
+        "title": "Resize Image v2"
+      }
+    },
+    "293": {
+      "inputs": {
+        "string_a": "twin sisters playing with rocks, levitating them with pyschic powers soft golden haze, reflective wet sand, emotional stillness, cinematic closure.",
+        "string_b": "ultra realistic , 4K, UHD, ray trace.",
+        "delimiter": " "
+      },
+      "class_type": "StringConcatenate",
+      "_meta": {
+        "title": "连接"
+      }
+    },
+    "297": {
+      "inputs": {
+        "image": "Runcmfy_Example_1305_5.png"
+      },
+      "class_type": "LoadImage",
+      "_meta": {
+        "title": "加载图像"
+      }
+    },
+    "298": {
+      "inputs": {
+        "text": [
+          "293",
+          0
+        ],
+        "clip": [
+          "12",
+          0
+        ]
+      },
+      "class_type": "CLIPTextEncode",
+      "_meta": {
+        "title": "Prompt 01"
+      }
+    },
+    "299": {
+      "inputs": {
+        "width": [
+          "112",
+          0
+        ],
+        "height": [
+          "115",
+          0
+        ],
+        "upscale_method": "nearest-exact",
+        "keep_proportion": "crop",
+        "pad_color": "0, 0, 0",
+        "crop_position": "center",
+        "divisible_by": 16,
+        "device": "cpu",
+        "image": [
+          "297",
+          0
+        ]
+      },
+      "class_type": "ImageResizeKJv2",
+      "_meta": {
+        "title": "Resize Image v2"
+      }
+    },
+    "300": {
+      "inputs": {
+        "string_a": "he sea calms. Only the conch remains on the empty shore, softly glowing with her reflection inside. The tide retreats, leaving a single footprint. Wide pullback shot, soft golden haze, reflective wet sand, emotional stillness, cinematic closure.",
+        "string_b": "ultra realistic , 4K, UHD, ray trace.",
+        "delimiter": " "
+      },
+      "class_type": "StringConcatenate",
+      "_meta": {
+        "title": "连接"
+      }
+    },
+    "304": {
+      "inputs": {
+        "image": "Runcmfy_Example_1305_6.png"
+      },
+      "class_type": "LoadImage",
+      "_meta": {
+        "title": "加载图像"
+      }
+    },
+    "305": {
+      "inputs": {
+        "text": [
+          "300",
+          0
+        ],
+        "clip": [
+          "12",
+          0
+        ]
+      },
+      "class_type": "CLIPTextEncode",
+      "_meta": {
+        "title": "Prompt 01"
+      }
+    },
+    "306": {
+      "inputs": {
+        "width": [
+          "112",
+          0
+        ],
+        "height": [
+          "115",
+          0
+        ],
+        "upscale_method": "nearest-exact",
+        "keep_proportion": "crop",
+        "pad_color": "0, 0, 0",
+        "crop_position": "center",
+        "divisible_by": 16,
+        "device": "cpu",
+        "image": [
+          "304",
+          0
+        ]
+      },
+      "class_type": "ImageResizeKJv2",
+      "_meta": {
+        "title": "Resize Image v2"
+      }
+    },
+    "308": {
+      "inputs": {
+        "inputcount": 6,
+        "Update inputs": null,
+        "image_1": [
+          "9",
+          0
+        ],
+        "image_2": [
+          "178",
+          0
+        ],
+        "image_3": [
+          "198",
+          0
+        ],
+        "image_4": [
+          "218",
+          0
+        ],
+        "image_5": [
+          "238",
+          0
+        ],
+        "image_6": [
+          "258",
+          0
+        ]
+      },
+      "class_type": "ImageBatchMulti",
+      "_meta": {
+        "title": "Image Batch Multi"
+      }
+    },
+    "309": {
+      "inputs": {
+        "frame_rate": 16,
+        "loop_count": 0,
+        "filename_prefix": "Combined",
+        "format": "video/h264-mp4",
+        "pix_fmt": "yuv420p",
+        "crf": 19,
+        "save_metadata": true,
+        "trim_to_audio": false,
+        "pingpong": false,
+        "save_output": true,
+        "images": [
+          "308",
+          0
+        ]
+      },
+      "class_type": "VHS_VideoCombine",
+      "_meta": {
+        "title": "Video Combine 🎥🅥🅗🅢"
+      }
+    },
+    "314": {
+      "inputs": {
+        "value": 8
+      },
+      "class_type": "FloatConstant",
+      "_meta": {
+        "title": "Shift"
+      }
+    },
+    "328": {
+      "inputs": {
+        "vae_name": "vae_128d_48k_fp16.safetensors",
+        "synchformer_name": "synchformer_state_dict_fp16.safetensors"
+      },
+      "class_type": "HunyuanDependenciesLoader",
+      "_meta": {
+        "title": "Hunyuan-Foley Dependencies Loader"
+      }
+    },
+    "329": {
+      "inputs": {
+        "index": 1,
+        "audio_batch": [
+          "331",
+          1
+        ]
+      },
+      "class_type": "SelectAudioFromBatch",
+      "_meta": {
+        "title": "Select Audio From Batch"
+      }
+    },
+    "330": {
+      "inputs": {
+        "audioUI": "",
+        "audio": [
+          "329",
+          0
+        ]
+      },
+      "class_type": "PreviewAudio",
+      "_meta": {
+        "title": "预览音频"
+      }
+    },
+    "331": {
+      "inputs": {
+        "frame_rate": [
+          "342",
+          5
+        ],
+        "duration": [
+          "342",
+          7
+        ],
+        "prompt": [
+          "341",
+          0
+        ],
+        "negative_prompt": "noisy, harsh, crash, bang",
+        "cfg_scale": 4.5,
+        "steps": 30,
+        "sampler": "euler",
+        "batch_size": 1,
+        "seed": 55588,
+        "force_offload": false,
+        "hunyuan_model": [
+          "335",
+          0
+        ],
+        "hunyuan_deps": [
+          "328",
+          0
+        ],
+        "image": [
+          "334",
+          0
+        ],
+        "torch_compile_cfg": [
+          "337",
+          0
+        ],
+        "block_swap_args": [
+          "336",
+          0
+        ]
+      },
+      "class_type": "HunyuanFoleySampler",
+      "_meta": {
+        "title": "Hunyuan-Foley Sampler"
+      }
+    },
+    "332": {
+      "inputs": {
+        "frame_rate": [
+          "342",
+          5
+        ],
+        "loop_count": 0,
+        "filename_prefix": "WANLongVid\\2026-06-13\\Scene1_Audio",
+        "format": "video/h264-mp4",
+        "pix_fmt": "yuv420p",
+        "crf": 19,
+        "save_metadata": false,
+        "trim_to_audio": false,
+        "pingpong": false,
+        "save_output": false,
+        "images": [
+          "334",
+          0
+        ],
+        "audio": [
+          "331",
+          0
+        ]
+      },
+      "class_type": "VHS_VideoCombine",
+      "_meta": {
+        "title": "Video Combine 🎥🅥🅗🅢"
+      }
+    },
+    "333": {
+      "inputs": {
+        "audioUI": "",
+        "audio": [
+          "331",
+          0
+        ]
+      },
+      "class_type": "PreviewAudio",
+      "_meta": {
+        "title": "预览音频"
+      }
+    },
+    "334": {
+      "inputs": {
+        "video": "",
+        "force_rate": 0,
+        "custom_width": 0,
+        "custom_height": 0,
+        "frame_load_cap": 0,
+        "skip_first_frames": 0,
+        "select_every_nth": 1,
+        "format": "AnimateDiff"
+      },
+      "class_type": "VHS_LoadVideoPath",
+      "_meta": {
+        "title": "Load Video (Path) 🎥🅥🅗🅢"
+      }
+    },
+    "335": {
+      "inputs": {
+        "model_name": "hunyuanvideo_foley_fp8_e4m3fn.safetensors",
+        "precision": "bf16",
+        "quantization": "auto"
+      },
+      "class_type": "HunyuanModelLoader",
+      "_meta": {
+        "title": "Hunyuan-Foley Model Loader"
+      }
+    },
+    "336": {
+      "inputs": {
+        "blocks_to_swap": 30,
+        "use_non_blocking": false,
+        "prefetch_blocks": 1,
+        "block_swap_debug": false
+      },
+      "class_type": "HunyuanBlockSwap",
+      "_meta": {
+        "title": "Hunyuan-Foley BlockSwap Settings"
+      }
+    },
+    "337": {
+      "inputs": {
+        "backend": "inductor",
+        "fullgraph": false,
+        "mode": "default",
+        "dynamic": "false",
+        "dynamo_cache_limit": 64
+      },
+      "class_type": "HunyuanFoleyTorchCompile",
+      "_meta": {
+        "title": "Hunyuan-Foley Torch Compile"
+      }
+    },
+    "339": {
+      "inputs": {
+        "model": "MiniCPM-V-4.5-int4",
+        "preset_prompt": "Video Scene",
+        "custom_prompt": "write a video scenes descibe what is the action in this video, what is the mood, and what is the character emotion. write within 100 words.",
+        "device": "GPU",
+        "memory_management": "Keep in Memory",
+        "seed": 605858540217028,
+        "video": [
+          "340",
+          0
+        ]
+      },
+      "class_type": "AILab_MiniCPM_V",
+      "_meta": {
+        "title": "MiniCPM-V"
+      }
+    },
+    "340": {
+      "inputs": {
+        "fps": 16,
+        "images": [
+          "334",
+          0
+        ]
+      },
+      "class_type": "CreateVideo",
+      "_meta": {
+        "title": "创建视频"
+      }
+    },
+    "341": {
+      "inputs": {
+        "text": [
+          "339",
+          0
+        ]
+      },
+      "class_type": "ShowText|pysssss",
+      "_meta": {
+        "title": "Show Text 🐍"
+      }
+    },
+    "342": {
+      "inputs": {
+        "video_info": [
+          "334",
+          3
+        ]
+      },
+      "class_type": "VHS_VideoInfo",
+      "_meta": {
+        "title": "Video Info 🎥🅥🅗🅢"
+      }
+    },
+    "343": {
+      "inputs": {
+        "samples": [
+          "345",
+          0
+        ],
+        "vae": [
+          "347",
+          0
+        ]
+      },
+      "class_type": "VAEDecode",
+      "_meta": {
+        "title": "VAE解码"
+      }
+    },
+    "344": {
+      "inputs": {
+        "width": 1280,
+        "height": 720,
+        "batch_size": 1
+      },
+      "class_type": "EmptySD3LatentImage",
+      "_meta": {
+        "title": "空Latent图像（SD3）"
+      }
+    },
+    "345": {
+      "inputs": {
+        "seed": 289036322678268,
+        "steps": 20,
+        "cfg": 1,
+        "sampler_name": "euler",
+        "scheduler": "simple",
+        "denoise": 1,
+        "model": [
+          "428",
+          0
+        ],
+        "positive": [
+          "350",
+          0
+        ],
+        "negative": [
+          "349",
+          0
+        ],
+        "latent_image": [
+          "344",
+          0
+        ]
+      },
+      "class_type": "KSampler",
+      "_meta": {
+        "title": "K采样器"
+      }
+    },
+    "346": {
+      "inputs": {
+        "unet_name": "Flux2\\flux1-dev-fp8.safetensors",
+        "weight_dtype": "default"
+      },
+      "class_type": "UNETLoader",
+      "_meta": {
+        "title": "UNet加载器"
+      }
+    },
+    "347": {
+      "inputs": {
+        "vae_name": "Flux2\\ae.safetensors"
+      },
+      "class_type": "VAELoader",
+      "_meta": {
+        "title": "加载VAE"
+      }
+    },
+    "348": {
+      "inputs": {
+        "clip_name1": "flux\\clip_l.safetensors",
+        "clip_name2": "Qwen\\umt5_xxl_fp16.safetensors",
+        "type": "flux",
+        "device": "default"
+      },
+      "class_type": "DualCLIPLoader",
+      "_meta": {
+        "title": "双CLIP加载器"
+      }
+    },
+    "349": {
+      "inputs": {
+        "conditioning": [
+          "350",
+          0
+        ]
+      },
+      "class_type": "ConditioningZeroOut",
+      "_meta": {
+        "title": "条件零化"
+      }
+    },
+    "350": {
+      "inputs": {
+        "text": "A woman in a long flowing dress stands ankle-deep in the ocean at dawn. The horizon glows pale gold, waves whisper against the sand. A broken conch shell lies at her feet, humming faintly with an otherworldly sound. Wide cinematic shot, natural morning light, lens flare, mist in the air, poetic melancholy.",
+        "clip": [
+          "348",
+          0
+        ]
+      },
+      "class_type": "CLIPTextEncode",
+      "_meta": {
+        "title": "CLIP文本编码"
+      }
+    },
+    "351": {
+      "inputs": {
+        "strength": 1,
+        "pre_cfg": false,
+        "model": [
+          "354",
+          0
+        ]
+      },
+      "class_type": "CFGNorm",
+      "_meta": {
+        "title": "CFG归一化"
+      }
+    },
+    "352": {
+      "inputs": {
+        "vae_name": "Qwen\\qwen_image_vae.safetensors"
+      },
+      "class_type": "VAELoader",
+      "_meta": {
+        "title": "加载VAE"
+      }
+    },
+    "353": {
+      "inputs": {
+        "clip_name": "Qwen\\qwen_2.5_vl_7b_fp8_scaled.safetensors",
+        "type": "qwen_image",
+        "device": "default"
+      },
+      "class_type": "CLIPLoader",
+      "_meta": {
+        "title": "加载CLIP"
+      }
+    },
+    "354": {
+      "inputs": {
+        "shift": 3,
+        "model": [
+          "363",
+          0
+        ]
+      },
+      "class_type": "ModelSamplingAuraFlow",
+      "_meta": {
+        "title": "采样算法（AuraFlow）"
+      }
+    },
+    "355": {
+      "inputs": {
+        "seed": 166731357175866,
+        "steps": 8,
+        "cfg": 1,
+        "sampler_name": "euler",
+        "scheduler": "beta",
+        "denoise": 1,
+        "model": [
+          "351",
+          0
+        ],
+        "positive": [
+          "360",
+          0
+        ],
+        "negative": [
+          "358",
+          0
+        ],
+        "latent_image": [
+          "357",
+          0
+        ]
+      },
+      "class_type": "KSampler",
+      "_meta": {
+        "title": "K采样器"
+      }
+    },
+    "356": {
+      "inputs": {
+        "unet_name": "Qwen\\qwen_image_edit_2509_fp8_e4m3fn.safetensors",
+        "weight_dtype": "default"
+      },
+      "class_type": "UNETLoader",
+      "_meta": {
+        "title": "UNet加载器"
+      }
+    },
+    "357": {
+      "inputs": {
+        "pixels": [
+          "362",
+          0
+        ],
+        "vae": [
+          "352",
+          0
+        ]
+      },
+      "class_type": "VAEEncode",
+      "_meta": {
+        "title": "VAE编码"
+      }
+    },
+    "358": {
+      "inputs": {
+        "prompt": "",
+        "clip": [
+          "353",
+          0
+        ],
+        "vae": [
+          "352",
+          0
+        ],
+        "image1": [
+          "362",
+          0
+        ]
+      },
+      "class_type": "TextEncodeQwenImageEditPlus",
+      "_meta": {
+        "title": "文本编码（QwenImageEditPlus）"
+      }
+    },
+    "359": {
+      "inputs": {
+        "lora_name": "Qwen\\Qwen-Image-Edit-2509-Lightning-4steps-V1.0-bf16.safetensors",
+        "strength_model": 1,
+        "model": [
+          "356",
+          0
+        ]
+      },
+      "class_type": "LoraLoaderModelOnly",
+      "_meta": {
+        "title": "LoRA加载器（仅模型）"
+      }
+    },
+    "360": {
+      "inputs": {
+        "prompt": "Next Scene: She kneels, pressing the conch to her ear. The whisper turns into a melody — echoes of a voice calling her name from deep underwater. Medium close-up, warm light blending with cool ocean tones, shallow DOF, intimate handheld framing.",
+        "clip": [
+          "353",
+          0
+        ],
+        "vae": [
+          "352",
+          0
+        ],
+        "image1": [
+          "362",
+          0
+        ]
+      },
+      "class_type": "TextEncodeQwenImageEditPlus",
+      "_meta": {
+        "title": "文本编码（QwenImageEditPlus）"
+      }
+    },
+    "361": {
+      "inputs": {
+        "samples": [
+          "355",
+          0
+        ],
+        "vae": [
+          "352",
+          0
+        ]
+      },
+      "class_type": "VAEDecode",
+      "_meta": {
+        "title": "VAE解码"
+      }
+    },
+    "362": {
+      "inputs": {
+        "upscale_method": "lanczos",
+        "megapixels": 1,
+        "resolution_steps": 1,
+        "image": [
+          "366",
+          0
+        ]
+      },
+      "class_type": "ImageScaleToTotalPixels",
+      "_meta": {
+        "title": "缩放图像（像素）"
+      }
+    },
+    "363": {
+      "inputs": {
+        "lora_name": "Qwen\\next-scene_lora-v2-3000.safetensors",
+        "strength_model": 1,
+        "model": [
+          "359",
+          0
+        ]
+      },
+      "class_type": "LoraLoaderModelOnly",
+      "_meta": {
+        "title": "LoRA加载器（仅模型）"
+      }
+    },
+    "364": {
+      "inputs": {
+        "images": [
+          "366",
+          0
+        ]
+      },
+      "class_type": "PreviewImage",
+      "_meta": {
+        "title": "预览图像"
+      }
+    },
+    "365": {
+      "inputs": {
+        "images": [
+          "361",
+          0
+        ]
+      },
+      "class_type": "PreviewImage",
+      "_meta": {
+        "title": "预览图像"
+      }
+    },
+    "366": {
+      "inputs": {
+        "anything": [
+          "343",
+          0
+        ]
+      },
+      "class_type": "easy cleanGpuUsed",
+      "_meta": {
+        "title": "清理显存占用"
+      }
+    },
+    "370": {
+      "inputs": {
+        "strength": 1,
+        "pre_cfg": false,
+        "model": [
+          "371",
+          0
+        ]
+      },
+      "class_type": "CFGNorm",
+      "_meta": {
+        "title": "CFG归一化"
+      }
+    },
+    "371": {
+      "inputs": {
+        "shift": 3,
+        "model": [
+          "363",
+          0
+        ]
+      },
+      "class_type": "ModelSamplingAuraFlow",
+      "_meta": {
+        "title": "采样算法（AuraFlow）"
+      }
+    },
+    "372": {
+      "inputs": {
+        "seed": 170794784063440,
+        "steps": 8,
+        "cfg": 1,
+        "sampler_name": "euler",
+        "scheduler": "beta",
+        "denoise": 1,
+        "model": [
+          "370",
+          0
+        ],
+        "positive": [
+          "375",
+          0
+        ],
+        "negative": [
+          "373",
+          0
+        ],
+        "latent_image": [
+          "377",
+          0
+        ]
+      },
+      "class_type": "KSampler",
+      "_meta": {
+        "title": "K采样器"
+      }
+    },
+    "373": {
+      "inputs": {
+        "prompt": "",
+        "clip": [
+          "353",
+          0
+        ],
+        "vae": [
+          "352",
+          0
+        ],
+        "image1": [
+          "376",
+          0
+        ]
+      },
+      "class_type": "TextEncodeQwenImageEditPlus",
+      "_meta": {
+        "title": "文本编码（QwenImageEditPlus）"
+      }
+    },
+    "374": {
+      "inputs": {
+        "samples": [
+          "372",
+          0
+        ],
+        "vae": [
+          "352",
+          0
+        ]
+      },
+      "class_type": "VAEDecode",
+      "_meta": {
+        "title": "VAE解码"
+      }
+    },
+    "375": {
+      "inputs": {
+        "prompt": "Next Scene: The tide rises unnaturally fast, circling her in a spiral of glowing plankton. The sea begins to pulse like a living heartbeat. Low-angle shot, teal bioluminescence, HDR detail, surreal movement in the water, cinematic magic realism.",
+        "clip": [
+          "353",
+          0
+        ],
+        "vae": [
+          "352",
+          0
+        ],
+        "image1": [
+          "376",
+          0
+        ]
+      },
+      "class_type": "TextEncodeQwenImageEditPlus",
+      "_meta": {
+        "title": "文本编码（QwenImageEditPlus）"
+      }
+    },
+    "376": {
+      "inputs": {
+        "upscale_method": "lanczos",
+        "megapixels": 1,
+        "resolution_steps": 1,
+        "image": [
+          "361",
+          0
+        ]
+      },
+      "class_type": "ImageScaleToTotalPixels",
+      "_meta": {
+        "title": "缩放图像（像素）"
+      }
+    },
+    "377": {
+      "inputs": {
+        "pixels": [
+          "376",
+          0
+        ],
+        "vae": [
+          "352",
+          0
+        ]
+      },
+      "class_type": "VAEEncode",
+      "_meta": {
+        "title": "VAE编码"
+      }
+    },
+    "378": {
+      "inputs": {
+        "images": [
+          "374",
+          0
+        ]
+      },
+      "class_type": "PreviewImage",
+      "_meta": {
+        "title": "预览图像"
+      }
+    },
+    "379": {
+      "inputs": {
+        "strength": 1,
+        "pre_cfg": false,
+        "model": [
+          "380",
+          0
+        ]
+      },
+      "class_type": "CFGNorm",
+      "_meta": {
+        "title": "CFG归一化"
+      }
+    },
+    "380": {
+      "inputs": {
+        "shift": 3,
+        "model": [
+          "363",
+          0
+        ]
+      },
+      "class_type": "ModelSamplingAuraFlow",
+      "_meta": {
+        "title": "采样算法（AuraFlow）"
+      }
+    },
+    "381": {
+      "inputs": {
+        "seed": 282100063848394,
+        "steps": 8,
+        "cfg": 1,
+        "sampler_name": "euler",
+        "scheduler": "beta",
+        "denoise": 1,
+        "model": [
+          "379",
+          0
+        ],
+        "positive": [
+          "384",
+          0
+        ],
+        "negative": [
+          "382",
+          0
+        ],
+        "latent_image": [
+          "386",
+          0
+        ]
+      },
+      "class_type": "KSampler",
+      "_meta": {
+        "title": "K采样器"
+      }
+    },
+    "382": {
+      "inputs": {
+        "prompt": "",
+        "clip": [
+          "353",
+          0
+        ],
+        "vae": [
+          "352",
+          0
+        ],
+        "image1": [
+          "385",
+          0
+        ]
+      },
+      "class_type": "TextEncodeQwenImageEditPlus",
+      "_meta": {
+        "title": "文本编码（QwenImageEditPlus）"
+      }
+    },
+    "383": {
+      "inputs": {
+        "samples": [
+          "381",
+          0
+        ],
+        "vae": [
+          "352",
+          0
+        ]
+      },
+      "class_type": "VAEDecode",
+      "_meta": {
+        "title": "VAE解码"
+      }
+    },
+    "384": {
+      "inputs": {
+        "prompt": "Next Scene: She dives beneath the surface, surrounded by flickering schools of silver fish and shimmering ribbons of light. A faint silhouette appears in the distance — human but translucent. Underwater tracking shot, diffused caustics, volumetric rays, graceful slow motion, emotional gravity.",
+        "clip": [
+          "353",
+          0
+        ],
+        "vae": [
+          "352",
+          0
+        ],
+        "image1": [
+          "385",
+          0
+        ]
+      },
+      "class_type": "TextEncodeQwenImageEditPlus",
+      "_meta": {
+        "title": "文本编码（QwenImageEditPlus）"
+      }
+    },
+    "385": {
+      "inputs": {
+        "upscale_method": "lanczos",
+        "megapixels": 1,
+        "resolution_steps": 1,
+        "image": [
+          "374",
+          0
+        ]
+      },
+      "class_type": "ImageScaleToTotalPixels",
+      "_meta": {
+        "title": "缩放图像（像素）"
+      }
+    },
+    "386": {
+      "inputs": {
+        "pixels": [
+          "385",
+          0
+        ],
+        "vae": [
+          "352",
+          0
+        ]
+      },
+      "class_type": "VAEEncode",
+      "_meta": {
+        "title": "VAE编码"
+      }
+    },
+    "387": {
+      "inputs": {
+        "images": [
+          "383",
+          0
+        ]
+      },
+      "class_type": "PreviewImage",
+      "_meta": {
+        "title": "预览图像"
+      }
+    },
+    "388": {
+      "inputs": {
+        "strength": 1,
+        "pre_cfg": false,
+        "model": [
+          "389",
+          0
+        ]
+      },
+      "class_type": "CFGNorm",
+      "_meta": {
+        "title": "CFG归一化"
+      }
+    },
+    "389": {
+      "inputs": {
+        "shift": 3,
+        "model": [
+          "363",
+          0
+        ]
+      },
+      "class_type": "ModelSamplingAuraFlow",
+      "_meta": {
+        "title": "采样算法（AuraFlow）"
+      }
+    },
+    "390": {
+      "inputs": {
+        "seed": 1116405023454354,
+        "steps": 8,
+        "cfg": 1,
+        "sampler_name": "euler",
+        "scheduler": "beta",
+        "denoise": 1,
+        "model": [
+          "388",
+          0
+        ],
+        "positive": [
+          "393",
+          0
+        ],
+        "negative": [
+          "391",
+          0
+        ],
+        "latent_image": [
+          "395",
+          0
+        ]
+      },
+      "class_type": "KSampler",
+      "_meta": {
+        "title": "K采样器"
+      }
+    },
+    "391": {
+      "inputs": {
+        "prompt": "",
+        "clip": [
+          "353",
+          0
+        ],
+        "vae": [
+          "352",
+          0
+        ],
+        "image1": [
+          "394",
+          0
+        ]
+      },
+      "class_type": "TextEncodeQwenImageEditPlus",
+      "_meta": {
+        "title": "文本编码（QwenImageEditPlus）"
+      }
+    },
+    "392": {
+      "inputs": {
+        "samples": [
+          "390",
+          0
+        ],
+        "vae": [
+          "352",
+          0
+        ]
+      },
+      "class_type": "VAEDecode",
+      "_meta": {
+        "title": "VAE解码"
+      }
+    },
+    "393": {
+      "inputs": {
+        "prompt": "Next Scene: She reaches out — the figure touches her hand. Memories flood through her mind: a storm, a lost ship, a farewell. Their forms begin to merge into glowing water. Close-up macro detail, surreal morphing, glowing particles drifting upward, ethereal beauty",
+        "clip": [
+          "353",
+          0
+        ],
+        "vae": [
+          "352",
+          0
+        ],
+        "image1": [
+          "394",
+          0
+        ]
+      },
+      "class_type": "TextEncodeQwenImageEditPlus",
+      "_meta": {
+        "title": "文本编码（QwenImageEditPlus）"
+      }
+    },
+    "394": {
+      "inputs": {
+        "upscale_method": "lanczos",
+        "megapixels": 1,
+        "resolution_steps": 1,
+        "image": [
+          "383",
+          0
+        ]
+      },
+      "class_type": "ImageScaleToTotalPixels",
+      "_meta": {
+        "title": "缩放图像（像素）"
+      }
+    },
+    "395": {
+      "inputs": {
+        "pixels": [
+          "394",
+          0
+        ],
+        "vae": [
+          "352",
+          0
+        ]
+      },
+      "class_type": "VAEEncode",
+      "_meta": {
+        "title": "VAE编码"
+      }
+    },
+    "396": {
+      "inputs": {
+        "images": [
+          "392",
+          0
+        ]
+      },
+      "class_type": "PreviewImage",
+      "_meta": {
+        "title": "预览图像"
+      }
+    },
+    "397": {
+      "inputs": {
+        "strength": 1,
+        "pre_cfg": false,
+        "model": [
+          "398",
+          0
+        ]
+      },
+      "class_type": "CFGNorm",
+      "_meta": {
+        "title": "CFG归一化"
+      }
+    },
+    "398": {
+      "inputs": {
+        "shift": 3,
+        "model": [
+          "363",
+          0
+        ]
+      },
+      "class_type": "ModelSamplingAuraFlow",
+      "_meta": {
+        "title": "采样算法（AuraFlow）"
+      }
+    },
+    "399": {
+      "inputs": {
+        "seed": 477633893324006,
+        "steps": 4,
+        "cfg": 1,
+        "sampler_name": "euler",
+        "scheduler": "simple",
+        "denoise": 1,
+        "model": [
+          "397",
+          0
+        ],
+        "positive": [
+          "402",
+          0
+        ],
+        "negative": [
+          "400",
+          0
+        ],
+        "latent_image": [
+          "404",
+          0
+        ]
+      },
+      "class_type": "KSampler",
+      "_meta": {
+        "title": "K采样器"
+      }
+    },
+    "400": {
+      "inputs": {
+        "prompt": "",
+        "clip": [
+          "353",
+          0
+        ],
+        "vae": [
+          "352",
+          0
+        ],
+        "image1": [
+          "403",
+          0
+        ]
+      },
+      "class_type": "TextEncodeQwenImageEditPlus",
+      "_meta": {
+        "title": "文本编码（QwenImageEditPlus）"
+      }
+    },
+    "401": {
+      "inputs": {
+        "samples": [
+          "399",
+          0
+        ],
+        "vae": [
+          "352",
+          0
+        ]
+      },
+      "class_type": "VAEDecode",
+      "_meta": {
+        "title": "VAE解码"
+      }
+    },
+    "402": {
+      "inputs": {
+        "prompt": "Next Scene: The sea calms. Only the conch remains on the empty shore, softly glowing with her reflection inside. The tide retreats, leaving a single footprint. Wide pullback shot, soft golden haze, reflective wet sand, emotional stillness, cinematic closure.",
+        "clip": [
+          "353",
+          0
+        ],
+        "vae": [
+          "352",
+          0
+        ],
+        "image1": [
+          "403",
+          0
+        ]
+      },
+      "class_type": "TextEncodeQwenImageEditPlus",
+      "_meta": {
+        "title": "文本编码（QwenImageEditPlus）"
+      }
+    },
+    "403": {
+      "inputs": {
+        "upscale_method": "lanczos",
+        "megapixels": 1,
+        "resolution_steps": 1,
+        "image": [
+          "392",
+          0
+        ]
+      },
+      "class_type": "ImageScaleToTotalPixels",
+      "_meta": {
+        "title": "缩放图像（像素）"
+      }
+    },
+    "404": {
+      "inputs": {
+        "pixels": [
+          "403",
+          0
+        ],
+        "vae": [
+          "352",
+          0
+        ]
+      },
+      "class_type": "VAEEncode",
+      "_meta": {
+        "title": "VAE编码"
+      }
+    },
+    "405": {
+      "inputs": {
+        "images": [
+          "401",
+          0
+        ]
+      },
+      "class_type": "PreviewImage",
+      "_meta": {
+        "title": "预览图像"
+      }
+    },
+    "428": {
+      "inputs": {
+        "lora_name": "flux-2-klein\\srpo_128_base_oficial_model_fp16.safetensors",
+        "strength_model": 1,
+        "model": [
+          "346",
+          0
+        ]
+      },
+      "class_type": "LoraLoaderModelOnly",
+      "_meta": {
+        "title": "LoRA加载器（仅模型）"
+      }
+    },
+    "442": {
+      "inputs": {
+        "purge_cache": true,
+        "purge_models": true,
+        "anything": [
+          "9",
+          0
+        ]
+      },
+      "class_type": "LayerUtility: PurgeVRAM",
+      "_meta": {
+        "title": "图层工具：清除VRAM"
+      }
+    },
+    "443": {
+      "inputs": {
+        "purge_cache": true,
+        "purge_models": true,
+        "anything": [
+          "178",
+          0
+        ]
+      },
+      "class_type": "LayerUtility: PurgeVRAM",
+      "_meta": {
+        "title": "图层工具：清除VRAM"
+      }
+    },
+    "444": {
+      "inputs": {
+        "purge_cache": true,
+        "purge_models": true,
+        "anything": [
+          "198",
+          0
+        ]
+      },
+      "class_type": "LayerUtility: PurgeVRAM",
+      "_meta": {
+        "title": "图层工具：清除VRAM"
+      }
+    },
+    "445": {
+      "inputs": {
+        "purge_cache": true,
+        "purge_models": true,
+        "anything": [
+          "218",
+          0
+        ]
+      },
+      "class_type": "LayerUtility: PurgeVRAM",
+      "_meta": {
+        "title": "图层工具：清除VRAM"
+      }
+    },
+    "446": {
+      "inputs": {
+        "purge_cache": true,
+        "purge_models": true,
+        "anything": [
+          "238",
+          0
+        ]
+      },
+      "class_type": "LayerUtility: PurgeVRAM",
+      "_meta": {
+        "title": "图层工具：清除VRAM"
+      }
+    },
+    "447": {
+      "inputs": {
+        "purge_cache": true,
+        "purge_models": true,
+        "anything": [
+          "258",
+          0
+        ]
+      },
+      "class_type": "LayerUtility: PurgeVRAM",
+      "_meta": {
+        "title": "图层工具：清除VRAM"
+      }
+    },
+    "448": {
+      "inputs": {
+        "filename_prefix": "Start_",
+        "images": [
+          "366",
+          0
+        ]
+      },
+      "class_type": "SaveImage",
+      "_meta": {
+        "title": "保存图像"
+      }
+    },
+    "449": {
+      "inputs": {
+        "filename_prefix": "Scene_1_",
+        "images": [
+          "361",
+          0
+        ]
+      },
+      "class_type": "SaveImage",
+      "_meta": {
+        "title": "保存图像"
+      }
+    },
+    "450": {
+      "inputs": {
+        "filename_prefix": "Scene_2_",
+        "images": [
+          "374",
+          0
+        ]
+      },
+      "class_type": "SaveImage",
+      "_meta": {
+        "title": "保存图像"
+      }
+    },
+    "451": {
+      "inputs": {
+        "filename_prefix": "Scene_3_",
+        "images": [
+          "383",
+          0
+        ]
+      },
+      "class_type": "SaveImage",
+      "_meta": {
+        "title": "保存图像"
+      }
+    },
+    "452": {
+      "inputs": {
+        "filename_prefix": "Scene_4_",
+        "images": [
+          "392",
+          0
+        ]
+      },
+      "class_type": "SaveImage",
+      "_meta": {
+        "title": "保存图像"
+      }
+    },
+    "453": {
+      "inputs": {
+        "filename_prefix": "Scene_5_",
+        "images": [
+          "401",
+          0
+        ]
+      },
+      "class_type": "SaveImage",
+      "_meta": {
+        "title": "保存图像"
+      }
+    }
+  },
+  "updatedAt": "2026-06-15T11:08:44.558Z"
+}

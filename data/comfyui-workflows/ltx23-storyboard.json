@@ -1,0 +1,1284 @@
+{
+  "id": "ltx23-storyboard",
+  "name": "LTX2.3 分镜图生视频",
+  "type": "custom",
+  "typeLabel": "自定义",
+  "workflow": {
+    "676": {
+      "inputs": {
+        "vae_name": "LTX2.3\\LTX23_audio_vae_bf16.safetensors",
+        "device": "main_device",
+        "weight_dtype": "bf16"
+      },
+      "class_type": "VAELoaderKJ",
+      "_meta": {
+        "title": "VAELoader KJ"
+      }
+    },
+    "678": {
+      "inputs": {
+        "vae_name": "LTX2.3\\taeltx2.3_VAE.safetensors"
+      },
+      "class_type": "VAELoader",
+      "_meta": {
+        "title": "加载VAE"
+      }
+    },
+    "679": {
+      "inputs": {
+        "vae_name": "LTX2.3\\LTX23_video_vae_bf16.safetensors"
+      },
+      "class_type": "VAELoader",
+      "_meta": {
+        "title": "加载VAE"
+      }
+    },
+    "681": {
+      "inputs": {
+        "clip_name1": "LTX2.3\\gemma_3_12B_it_fp4_mixed.safetensors",
+        "clip_name2": "LTX2.3\\ltx-2.3_text_projection_bf16.safetensors",
+        "type": "ltxv",
+        "device": "default"
+      },
+      "class_type": "DualCLIPLoader",
+      "_meta": {
+        "title": "双CLIP加载器"
+      }
+    },
+    "683": {
+      "inputs": {
+        "unet_name": "LTX2.3\\ltx-2.3-22b-distilled-1.1_transformer_only_fp8_scaled.safetensors",
+        "weight_dtype": "default"
+      },
+      "class_type": "UNETLoader",
+      "_meta": {
+        "title": "UNet加载器"
+      }
+    },
+    "684": {
+      "inputs": {
+        "model_name": "ltx-2.3-spatial-upscaler-x2-1.1.safetensors"
+      },
+      "class_type": "LatentUpscaleModelLoader",
+      "_meta": {
+        "title": "加载Latent放大模型"
+      }
+    },
+    "697": {
+      "inputs": {
+        "value": 24
+      },
+      "class_type": "PrimitiveFloat",
+      "_meta": {
+        "title": "FPS"
+      }
+    },
+    "699": {
+      "inputs": {
+        "value": 1920
+      },
+      "class_type": "INTConstant",
+      "_meta": {
+        "title": "WIDTH"
+      }
+    },
+    "701": {
+      "inputs": {
+        "value": 1088
+      },
+      "class_type": "INTConstant",
+      "_meta": {
+        "title": "HEIGHT"
+      }
+    },
+    "724": {
+      "inputs": {
+        "video_latent": [
+          "928",
+          2
+        ],
+        "audio_latent": [
+          "734",
+          1
+        ]
+      },
+      "class_type": "LTXVConcatAVLatent",
+      "_meta": {
+        "title": "LTXVConcatAVLatent"
+      }
+    },
+    "725": {
+      "inputs": {
+        "sampler_name": "euler_cfg_pp"
+      },
+      "class_type": "KSamplerSelect",
+      "_meta": {
+        "title": "K采样器选择"
+      }
+    },
+    "734": {
+      "inputs": {
+        "av_latent": [
+          "776",
+          0
+        ]
+      },
+      "class_type": "LTXVSeparateAVLatent",
+      "_meta": {
+        "title": "LTXV分离音视频潜空间"
+      }
+    },
+    "735": {
+      "inputs": {
+        "cfg": 1,
+        "model": [
+          "772",
+          0
+        ],
+        "positive": [
+          "928",
+          0
+        ],
+        "negative": [
+          "928",
+          1
+        ]
+      },
+      "class_type": "CFGGuider",
+      "_meta": {
+        "title": "CFG引导器"
+      }
+    },
+    "736": {
+      "inputs": {
+        "noise": [
+          "773",
+          0
+        ],
+        "guider": [
+          "735",
+          0
+        ],
+        "sampler": [
+          "725",
+          0
+        ],
+        "sigmas": [
+          "745",
+          0
+        ],
+        "latent_image": [
+          "724",
+          0
+        ]
+      },
+      "class_type": "SamplerCustomAdvanced",
+      "_meta": {
+        "title": "自定义采样器（高级）"
+      }
+    },
+    "737": {
+      "inputs": {
+        "samples": [
+          "939",
+          2
+        ],
+        "upscale_model": [
+          "684",
+          0
+        ],
+        "vae": [
+          "679",
+          0
+        ]
+      },
+      "class_type": "LTXVLatentUpsampler",
+      "_meta": {
+        "title": "spatial"
+      }
+    },
+    "742": {
+      "inputs": {
+        "sampler_name": "euler_ancestral_cfg_pp"
+      },
+      "class_type": "KSamplerSelect",
+      "_meta": {
+        "title": "K采样器选择"
+      }
+    },
+    "743": {
+      "inputs": {
+        "sigmas": "1.0, 0.99375, 0.9875, 0.98125, 0.975, 0.909375, 0.725, 0.421875, 0.0"
+      },
+      "class_type": "ManualSigmas",
+      "_meta": {
+        "title": "自定义Sigmas"
+      }
+    },
+    "744": {
+      "inputs": {
+        "sigmas": "0.909375, 0.725, 0.421875, 0.0"
+      },
+      "class_type": "ManualSigmas",
+      "_meta": {
+        "title": "ManualSigmas (LTX-2)"
+      }
+    },
+    "745": {
+      "inputs": {
+        "sigmas": "0.85, 0.7250, 0.4219, 0.0"
+      },
+      "class_type": "ManualSigmas",
+      "_meta": {
+        "title": "自定义Sigmas"
+      }
+    },
+    "752": {
+      "inputs": {
+        "tile_size": 512,
+        "overlap": 64,
+        "temporal_size": 4096,
+        "temporal_overlap": 76,
+        "samples": [
+          "942",
+          2
+        ],
+        "vae": [
+          "679",
+          0
+        ]
+      },
+      "class_type": "VAEDecodeTiled",
+      "_meta": {
+        "title": "VAE解码（分块）"
+      }
+    },
+    "753": {
+      "inputs": {
+        "samples": [
+          "754",
+          1
+        ],
+        "audio_vae": [
+          "676",
+          0
+        ]
+      },
+      "class_type": "LTXVAudioVAEDecode",
+      "_meta": {
+        "title": "LTXV音频VAE解码"
+      }
+    },
+    "754": {
+      "inputs": {
+        "av_latent": [
+          "736",
+          0
+        ]
+      },
+      "class_type": "LTXVSeparateAVLatent",
+      "_meta": {
+        "title": "LTXV分离音视频潜空间"
+      }
+    },
+    "757": {
+      "inputs": {
+        "frame_rate": [
+          "697",
+          0
+        ],
+        "loop_count": 0,
+        "filename_prefix": "LTX-2",
+        "format": "video/h264-mp4",
+        "pix_fmt": "yuv420p",
+        "crf": 19,
+        "save_metadata": true,
+        "trim_to_audio": false,
+        "pingpong": false,
+        "save_output": false,
+        "images": [
+          "752",
+          0
+        ],
+        "audio": [
+          "753",
+          0
+        ]
+      },
+      "class_type": "VHS_VideoCombine",
+      "_meta": {
+        "title": "Video Combine 🎥🅥🅗🅢"
+      }
+    },
+    "765": {
+      "inputs": {
+        "steps": 8,
+        "max_shift": 2.05,
+        "base_shift": 0.95,
+        "stretch": true,
+        "terminal": 0.1,
+        "latent": [
+          "1138",
+          0
+        ]
+      },
+      "class_type": "LTXVScheduler",
+      "_meta": {
+        "title": "LTXVScheduler (for more steps)"
+      }
+    },
+    "772": {
+      "inputs": {
+        "preview_rate": 8,
+        "model": [
+          "817",
+          0
+        ],
+        "vae": [
+          "678",
+          0
+        ]
+      },
+      "class_type": "LTX2SamplingPreviewOverride",
+      "_meta": {
+        "title": "LTX2 Sampling Preview Override"
+      }
+    },
+    "773": {
+      "inputs": {
+        "noise_seed": 258547105407540
+      },
+      "class_type": "RandomNoise",
+      "_meta": {
+        "title": "随机噪波"
+      }
+    },
+    "774": {
+      "inputs": {
+        "noise_seed": 1050584466350414
+      },
+      "class_type": "RandomNoise",
+      "_meta": {
+        "title": "随机噪波"
+      }
+    },
+    "775": {
+      "inputs": {
+        "cfg": 1,
+        "model": [
+          "772",
+          0
+        ],
+        "positive": [
+          "1059:1054",
+          0
+        ],
+        "negative": [
+          "1059:1054",
+          1
+        ]
+      },
+      "class_type": "CFGGuider",
+      "_meta": {
+        "title": "CFG引导器"
+      }
+    },
+    "776": {
+      "inputs": {
+        "noise": [
+          "774",
+          0
+        ],
+        "guider": [
+          "775",
+          0
+        ],
+        "sampler": [
+          "742",
+          0
+        ],
+        "sigmas": [
+          "743",
+          0
+        ],
+        "latent_image": [
+          "1138",
+          0
+        ]
+      },
+      "class_type": "SamplerCustomAdvanced",
+      "_meta": {
+        "title": "自定义采样器（高级）"
+      }
+    },
+    "817": {
+      "inputs": {
+        "nag_scale": 11,
+        "nag_alpha": 0.25,
+        "nag_tau": 2.5,
+        "inplace": true,
+        "model": [
+          "948",
+          0
+        ],
+        "nag_cond_video": [
+          "1059:1054",
+          1
+        ],
+        "nag_cond_audio": [
+          "1059:1054",
+          1
+        ]
+      },
+      "class_type": "LTX2_NAG",
+      "_meta": {
+        "title": "LTX2 NAG"
+      }
+    },
+    "818": {
+      "inputs": {
+        "text": "blurry, oversaturated, pixelated, low resolution, grainy, distorted, noise, compression artifacts, jpeg artifacts, glitches, watermark, text, logo, signature, copyright, subtitles, distorted sound, saturated sound, loud",
+        "clip": [
+          "681",
+          0
+        ]
+      },
+      "class_type": "CLIPTextEncode",
+      "_meta": {
+        "title": "Negative Prompt"
+      }
+    },
+    "820": {
+      "inputs": {
+        "image": "林北.png"
+      },
+      "class_type": "LoadImage",
+      "_meta": {
+        "title": "SEGMENT 1"
+      }
+    },
+    "899": {
+      "inputs": {
+        "PowerLoraLoaderHeaderWidget": {
+          "type": "PowerLoraLoaderHeaderWidget"
+        },
+        "➕ Add Lora": "",
+        "model": [
+          "683",
+          0
+        ]
+      },
+      "class_type": "Power Lora Loader (rgthree)",
+      "_meta": {
+        "title": "权重Lora加载器"
+      }
+    },
+    "928": {
+      "inputs": {
+        "num_guides": "5",
+        "num_guides.frame_idx_1": 0,
+        "num_guides.strength_1": [
+          "1118",
+          0
+        ],
+        "num_guides.frame_idx_2": [
+          "950",
+          0
+        ],
+        "num_guides.strength_2": [
+          "1118",
+          0
+        ],
+        "num_guides.frame_idx_3": [
+          "934",
+          1
+        ],
+        "num_guides.strength_3": [
+          "1118",
+          0
+        ],
+        "num_guides.frame_idx_4": [
+          "935",
+          1
+        ],
+        "num_guides.strength_4": [
+          "1118",
+          0
+        ],
+        "num_guides.frame_idx_5": [
+          "1162",
+          1
+        ],
+        "num_guides.strength_5": [
+          "1118",
+          0
+        ],
+        "positive": [
+          "939",
+          0
+        ],
+        "negative": [
+          "939",
+          1
+        ],
+        "vae": [
+          "679",
+          0
+        ],
+        "latent": [
+          "737",
+          0
+        ],
+        "num_guides.image_1": [
+          "954:830",
+          0
+        ],
+        "num_guides.image_2": [
+          "1071:1067",
+          0
+        ],
+        "num_guides.image_3": [
+          "1081:1077",
+          0
+        ],
+        "num_guides.image_4": [
+          "1091:1087",
+          0
+        ],
+        "num_guides.image_5": [
+          "1156:1152",
+          0
+        ]
+      },
+      "class_type": "LTXVAddGuideMulti",
+      "_meta": {
+        "title": "LTXVAddGuideMulti"
+      }
+    },
+    "934": {
+      "inputs": {
+        "expression": "a + b",
+        "values.a": [
+          "950",
+          0
+        ],
+        "values.b": [
+          "1074",
+          0
+        ]
+      },
+      "class_type": "ComfyMathExpression",
+      "_meta": {
+        "title": "数学表达式"
+      }
+    },
+    "935": {
+      "inputs": {
+        "expression": "a + b",
+        "values.a": [
+          "934",
+          1
+        ],
+        "values.b": [
+          "1084",
+          0
+        ]
+      },
+      "class_type": "ComfyMathExpression",
+      "_meta": {
+        "title": "数学表达式"
+      }
+    },
+    "939": {
+      "inputs": {
+        "positive": [
+          "1059:1054",
+          0
+        ],
+        "negative": [
+          "1059:1054",
+          1
+        ],
+        "latent": [
+          "734",
+          0
+        ]
+      },
+      "class_type": "LTXVCropGuides",
+      "_meta": {
+        "title": "LTXV裁剪指导"
+      }
+    },
+    "942": {
+      "inputs": {
+        "positive": [
+          "928",
+          0
+        ],
+        "negative": [
+          "928",
+          1
+        ],
+        "latent": [
+          "754",
+          0
+        ]
+      },
+      "class_type": "LTXVCropGuides",
+      "_meta": {
+        "title": "LTXV裁剪指导"
+      }
+    },
+    "948": {
+      "inputs": {
+        "global_prompt": "High-quality cinematic anime storyboard, ultra-detailed visuals, strong character consistency across all shots, dramatic composition, high-resolution image quality, rich environmental detail, expressive facial acting, clean panel storytelling, refined perspective, immersive atmosphere, polished color grading, strong contrast between the cold blue snowy apocalypse outside and the warm amber indoor safe zone inside, realistic snow effects, cinematic lighting, sharp focus, clear visual continuity, emotional storytelling imagery, professional anime film quality, no on-screen subtitles.",
+        "max_frames": 481,
+        "timeline_data": "{\"segments\":[{\"prompt\":\"A young anime male protagonist stands by the window inside a dim home during a snow apocalypse, staring outside in shock as heavy snow falls across the town. He has messy black hair, wears a dark hoodie, and places one hand near the cold window glass while watching the blizzard. Outside, rooftops, streets, and houses are covered in thick snow, and the whole world feels frozen and silent. The indoor room is dark and cold-toned, with only faint warm light inside. He says in Chinese, “这雪也太夸张了吧……怎么一下子下成这样，外面简直像世界末日一样。” The mood should feel tense, cold, and full of foreboding.\",\"length\":97,\"color\":\"#4f8edc\"},{\"prompt\":\"The same young anime male protagonist continues looking out from the window and sees people outside desperately running home through the thick snow as the apocalyptic winter storm fully arrives. The ground is buried under deep snow, wind and snowflakes sweep violently through the street, and several people in winter clothes sprint through the blizzard in panic. Cars, roads, and buildings are partly buried, showing that the cold apocalypse has begun. The protagonist is seen from behind or from a side angle near the window frame, staring at the chaotic scene. He says in Chinese, “所有人都在往家里跑……完了，寒冬末日真的来了，现在谁还敢出门啊。” The scene should feel urgent, chaotic, and oppressive.\",\"length\":96,\"color\":\"#e07b3a\"},{\"prompt\":\"Inside the house, the young anime male protagonist opens the heavy door of an underground storage room and reveals a huge secret stockpile filled with an overwhelming amount of snacks and food supplies. The room is packed floor to ceiling with boxes, cup noodles, chips, cookies, canned food, drinks, and all kinds of colorful packaged snacks, lit by warm storage lights. The protagonist is shown from behind or in three-quarter view, pushing the door open and staring at the massive supply in satisfaction and amazement. He says in Chinese, “还好我早就准备好了，这地下仓库里屯的零食，别说几个月，撑上一年都没问题。” The mood should shift from tension to relief and triumph.\",\"length\":96,\"color\":\"#5cb85c\"},{\"prompt\":\"The young anime male protagonist lies happily on top of a mountain-like pile of snacks inside the storage room, spreading his arms wide with a joyful, carefree expression. Around him are endless snack bags, cup noodles, boxes, bottles, and packaged food, forming a colorful sea of supplies. He looks relaxed, ecstatic, and totally secure despite the apocalypse outside. Warm indoor lighting fills the frame, creating a rich contrast with the deadly blizzard outside. He says in Chinese, “哈哈哈，别人现在在外面发愁怎么活下去，我直接躺在零食堆里当末日赢家。” The mood should feel humorous, satisfying, and exaggeratedly happy.\",\"length\":96,\"color\":\"#d9534f\"},{\"prompt\":\"The same young anime male protagonist sits comfortably indoors beside a warm heater or stove, surrounded by towering stacks of snacks and food supplies, casually eating chips while snow continues falling heavily outside the window. He leans back in a relaxed chair with a pleased smile, looking completely at ease in his cozy survival shelter. The background shows shelves and piles of instant noodles, snacks, drinks, and supplies, while the window reveals the frozen snowy apocalypse outdoors. Warm firelight and lamplight make the room feel safe and comfortable. He says in Chinese, “外面再怎么天寒地冻也无所谓，反正我零食管够，接下来就在家里慢慢享受末日生活吧。” The mood should feel cozy, triumphant, and darkly funny.\",\"length\":96,\"color\":\"#9b6cd6\"}]}",
+        "local_prompts": "A young anime male protagonist stands by the window inside a dim home during a snow apocalypse, staring outside in shock as heavy snow falls across the town. He has messy black hair, wears a dark hoodie, and places one hand near the cold window glass while watching the blizzard. Outside, rooftops, streets, and houses are covered in thick snow, and the whole world feels frozen and silent. The indoor room is dark and cold-toned, with only faint warm light inside. He says in Chinese, “这雪也太夸张了吧……怎么一下子下成这样，外面简直像世界末日一样。” The mood should feel tense, cold, and full of foreboding. | The same young anime male protagonist continues looking out from the window and sees people outside desperately running home through the thick snow as the apocalyptic winter storm fully arrives. The ground is buried under deep snow, wind and snowflakes sweep violently through the street, and several people in winter clothes sprint through the blizzard in panic. Cars, roads, and buildings are partly buried, showing that the cold apocalypse has begun. The protagonist is seen from behind or from a side angle near the window frame, staring at the chaotic scene. He says in Chinese, “所有人都在往家里跑……完了，寒冬末日真的来了，现在谁还敢出门啊。” The scene should feel urgent, chaotic, and oppressive. | Inside the house, the young anime male protagonist opens the heavy door of an underground storage room and reveals a huge secret stockpile filled with an overwhelming amount of snacks and food supplies. The room is packed floor to ceiling with boxes, cup noodles, chips, cookies, canned food, drinks, and all kinds of colorful packaged snacks, lit by warm storage lights. The protagonist is shown from behind or in three-quarter view, pushing the door open and staring at the massive supply in satisfaction and amazement. He says in Chinese, “还好我早就准备好了，这地下仓库里屯的零食，别说几个月，撑上一年都没问题。” The mood should shift from tension to relief and triumph. | The young anime male protagonist lies happily on top of a mountain-like pile of snacks inside the storage room, spreading his arms wide with a joyful, carefree expression. Around him are endless snack bags, cup noodles, boxes, bottles, and packaged food, forming a colorful sea of supplies. He looks relaxed, ecstatic, and totally secure despite the apocalypse outside. Warm indoor lighting fills the frame, creating a rich contrast with the deadly blizzard outside. He says in Chinese, “哈哈哈，别人现在在外面发愁怎么活下去，我直接躺在零食堆里当末日赢家。” The mood should feel humorous, satisfying, and exaggeratedly happy. | The same young anime male protagonist sits comfortably indoors beside a warm heater or stove, surrounded by towering stacks of snacks and food supplies, casually eating chips while snow continues falling heavily outside the window. He leans back in a relaxed chair with a pleased smile, looking completely at ease in his cozy survival shelter. The background shows shelves and piles of instant noodles, snacks, drinks, and supplies, while the window reveals the frozen snowy apocalypse outdoors. Warm firelight and lamplight make the room feel safe and comfortable. He says in Chinese, “外面再怎么天寒地冻也无所谓，反正我零食管够，接下来就在家里慢慢享受末日生活吧。” The mood should feel cozy, triumphant, and darkly funny.",
+        "segment_lengths": "97, 96, 96, 96, 96",
+        "epsilon": 0.001,
+        "fps": 24,
+        "time_units": "frames",
+        "model": [
+          "899",
+          0
+        ],
+        "clip": [
+          "681",
+          0
+        ],
+        "latent": [
+          "1136",
+          0
+        ]
+      },
+      "class_type": "PromptRelayEncodeTimeline",
+      "_meta": {
+        "title": "Prompt Relay Encode (Timeline)"
+      }
+    },
+    "950": {
+      "inputs": {
+        "value": 97
+      },
+      "class_type": "INTConstant",
+      "_meta": {
+        "title": "SEGMENT 1 - FRAMES"
+      }
+    },
+    "1072": {
+      "inputs": {
+        "image": "林北.png"
+      },
+      "class_type": "LoadImage",
+      "_meta": {
+        "title": "SEGMENT 2"
+      }
+    },
+    "1074": {
+      "inputs": {
+        "value": 96
+      },
+      "class_type": "INTConstant",
+      "_meta": {
+        "title": "SEGMENT 2 - FRAMES"
+      }
+    },
+    "1082": {
+      "inputs": {
+        "image": "林北.png"
+      },
+      "class_type": "LoadImage",
+      "_meta": {
+        "title": "SEGMENT 3"
+      }
+    },
+    "1084": {
+      "inputs": {
+        "value": 96
+      },
+      "class_type": "INTConstant",
+      "_meta": {
+        "title": "SEGMENT 3 - FRAMES"
+      }
+    },
+    "1092": {
+      "inputs": {
+        "image": "林北.png"
+      },
+      "class_type": "LoadImage",
+      "_meta": {
+        "title": "SEGMENT 4"
+      }
+    },
+    "1094": {
+      "inputs": {
+        "value": 96
+      },
+      "class_type": "INTConstant",
+      "_meta": {
+        "title": "SEGMENT 4 - FRAMES"
+      }
+    },
+    "1118": {
+      "inputs": {
+        "value": 0.7
+      },
+      "class_type": "PrimitiveFloat",
+      "_meta": {
+        "title": "IMAGE STRENGTH"
+      }
+    },
+    "1136": {
+      "inputs": {
+        "width": [
+          "1142",
+          1
+        ],
+        "height": [
+          "1141",
+          1
+        ],
+        "length": 481,
+        "batch_size": 1
+      },
+      "class_type": "EmptyLTXVLatentVideo",
+      "_meta": {
+        "title": "空Latent视频（LTXV）"
+      }
+    },
+    "1137": {
+      "inputs": {
+        "frames_number": 481,
+        "frame_rate": [
+          "1144",
+          1
+        ],
+        "batch_size": 1,
+        "audio_vae": [
+          "676",
+          0
+        ]
+      },
+      "class_type": "LTXVEmptyLatentAudio",
+      "_meta": {
+        "title": "LTXV 空音频潜空间"
+      }
+    },
+    "1138": {
+      "inputs": {
+        "video_latent": [
+          "1059:1057",
+          2
+        ],
+        "audio_latent": [
+          "1137",
+          0
+        ]
+      },
+      "class_type": "LTXVConcatAVLatent",
+      "_meta": {
+        "title": "LTXVConcatAVLatent"
+      }
+    },
+    "1141": {
+      "inputs": {
+        "expression": "a/2",
+        "values.a": [
+          "701",
+          0
+        ]
+      },
+      "class_type": "ComfyMathExpression",
+      "_meta": {
+        "title": "数学表达式"
+      }
+    },
+    "1142": {
+      "inputs": {
+        "expression": "a/2",
+        "values.a": [
+          "699",
+          0
+        ]
+      },
+      "class_type": "ComfyMathExpression",
+      "_meta": {
+        "title": "数学表达式"
+      }
+    },
+    "1144": {
+      "inputs": {
+        "expression": "a",
+        "values.a": [
+          "697",
+          0
+        ]
+      },
+      "class_type": "ComfyMathExpression",
+      "_meta": {
+        "title": "数学表达式"
+      }
+    },
+    "1158": {
+      "inputs": {
+        "value": 96
+      },
+      "class_type": "INTConstant",
+      "_meta": {
+        "title": "SEGMENT 5 - FRAMES"
+      }
+    },
+    "1159": {
+      "inputs": {
+        "image": "林北.png"
+      },
+      "class_type": "LoadImage",
+      "_meta": {
+        "title": "SEGMENT 5"
+      }
+    },
+    "1162": {
+      "inputs": {
+        "expression": "a + b",
+        "values.a": [
+          "935",
+          1
+        ],
+        "values.b": [
+          "1094",
+          0
+        ]
+      },
+      "class_type": "ComfyMathExpression",
+      "_meta": {
+        "title": "数学表达式"
+      }
+    },
+    "1164": {
+      "inputs": {
+        "text": "385",
+        "anything": [
+          "1162",
+          1
+        ]
+      },
+      "class_type": "easy showAnything",
+      "_meta": {
+        "title": "展示任何"
+      }
+    },
+    "954:829": {
+      "inputs": {
+        "longer_edge": 1536,
+        "images": [
+          "954:834",
+          0
+        ]
+      },
+      "class_type": "ResizeImagesByLongerEdge",
+      "_meta": {
+        "title": "缩放图像（长边）"
+      }
+    },
+    "954:834": {
+      "inputs": {
+        "resize_type": "scale dimensions",
+        "resize_type.width": [
+          "699",
+          0
+        ],
+        "resize_type.height": [
+          "701",
+          0
+        ],
+        "resize_type.crop": "center",
+        "scale_method": "lanczos",
+        "input": [
+          "820",
+          0
+        ]
+      },
+      "class_type": "ResizeImageMaskNode",
+      "_meta": {
+        "title": "调整图像/掩码大小"
+      }
+    },
+    "954:830": {
+      "inputs": {
+        "img_compression": 18,
+        "image": [
+          "954:829",
+          0
+        ]
+      },
+      "class_type": "LTXVPreprocess",
+      "_meta": {
+        "title": "LTXV预处理"
+      }
+    },
+    "1071:1065": {
+      "inputs": {
+        "longer_edge": 1536,
+        "images": [
+          "1071:1066",
+          0
+        ]
+      },
+      "class_type": "ResizeImagesByLongerEdge",
+      "_meta": {
+        "title": "缩放图像（长边）"
+      }
+    },
+    "1071:1066": {
+      "inputs": {
+        "resize_type": "scale dimensions",
+        "resize_type.width": [
+          "699",
+          0
+        ],
+        "resize_type.height": [
+          "701",
+          0
+        ],
+        "resize_type.crop": "center",
+        "scale_method": "lanczos",
+        "input": [
+          "1072",
+          0
+        ]
+      },
+      "class_type": "ResizeImageMaskNode",
+      "_meta": {
+        "title": "调整图像/掩码大小"
+      }
+    },
+    "1071:1067": {
+      "inputs": {
+        "img_compression": 18,
+        "image": [
+          "1071:1065",
+          0
+        ]
+      },
+      "class_type": "LTXVPreprocess",
+      "_meta": {
+        "title": "LTXV预处理"
+      }
+    },
+    "1081:1075": {
+      "inputs": {
+        "longer_edge": 1536,
+        "images": [
+          "1081:1076",
+          0
+        ]
+      },
+      "class_type": "ResizeImagesByLongerEdge",
+      "_meta": {
+        "title": "缩放图像（长边）"
+      }
+    },
+    "1081:1077": {
+      "inputs": {
+        "img_compression": 18,
+        "image": [
+          "1081:1075",
+          0
+        ]
+      },
+      "class_type": "LTXVPreprocess",
+      "_meta": {
+        "title": "LTXV预处理"
+      }
+    },
+    "1081:1076": {
+      "inputs": {
+        "resize_type": "scale dimensions",
+        "resize_type.width": [
+          "699",
+          0
+        ],
+        "resize_type.height": [
+          "701",
+          0
+        ],
+        "resize_type.crop": "center",
+        "scale_method": "lanczos",
+        "input": [
+          "1082",
+          0
+        ]
+      },
+      "class_type": "ResizeImageMaskNode",
+      "_meta": {
+        "title": "调整图像/掩码大小"
+      }
+    },
+    "1091:1085": {
+      "inputs": {
+        "longer_edge": 1536,
+        "images": [
+          "1091:1086",
+          0
+        ]
+      },
+      "class_type": "ResizeImagesByLongerEdge",
+      "_meta": {
+        "title": "缩放图像（长边）"
+      }
+    },
+    "1091:1086": {
+      "inputs": {
+        "resize_type": "scale dimensions",
+        "resize_type.width": [
+          "699",
+          0
+        ],
+        "resize_type.height": [
+          "701",
+          0
+        ],
+        "resize_type.crop": "center",
+        "scale_method": "lanczos",
+        "input": [
+          "1092",
+          0
+        ]
+      },
+      "class_type": "ResizeImageMaskNode",
+      "_meta": {
+        "title": "调整图像/掩码大小"
+      }
+    },
+    "1091:1087": {
+      "inputs": {
+        "img_compression": 18,
+        "image": [
+          "1091:1085",
+          0
+        ]
+      },
+      "class_type": "LTXVPreprocess",
+      "_meta": {
+        "title": "LTXV预处理"
+      }
+    },
+    "1156:1150": {
+      "inputs": {
+        "longer_edge": 1536,
+        "images": [
+          "1156:1151",
+          0
+        ]
+      },
+      "class_type": "ResizeImagesByLongerEdge",
+      "_meta": {
+        "title": "缩放图像（长边）"
+      }
+    },
+    "1156:1151": {
+      "inputs": {
+        "resize_type": "scale dimensions",
+        "resize_type.width": [
+          "699",
+          0
+        ],
+        "resize_type.height": [
+          "701",
+          0
+        ],
+        "resize_type.crop": "center",
+        "scale_method": "lanczos",
+        "input": [
+          "1159",
+          0
+        ]
+      },
+      "class_type": "ResizeImageMaskNode",
+      "_meta": {
+        "title": "调整图像/掩码大小"
+      }
+    },
+    "1156:1152": {
+      "inputs": {
+        "img_compression": 18,
+        "image": [
+          "1156:1150",
+          0
+        ]
+      },
+      "class_type": "LTXVPreprocess",
+      "_meta": {
+        "title": "LTXV预处理"
+      }
+    },
+    "1059:1054": {
+      "inputs": {
+        "frame_rate": [
+          "697",
+          0
+        ],
+        "positive": [
+          "1059:1057",
+          0
+        ],
+        "negative": [
+          "1059:1057",
+          1
+        ]
+      },
+      "class_type": "LTXVConditioning",
+      "_meta": {
+        "title": "LTXV条件"
+      }
+    },
+    "1059:1046": {
+      "inputs": {
+        "expression": "a + b",
+        "values.a": [
+          "950",
+          0
+        ],
+        "values.b": [
+          "1074",
+          0
+        ]
+      },
+      "class_type": "ComfyMathExpression",
+      "_meta": {
+        "title": "数学表达式"
+      }
+    },
+    "1059:1047": {
+      "inputs": {
+        "expression": "a + b",
+        "values.a": [
+          "1059:1046",
+          1
+        ],
+        "values.b": [
+          "1084",
+          0
+        ]
+      },
+      "class_type": "ComfyMathExpression",
+      "_meta": {
+        "title": "数学表达式"
+      }
+    },
+    "1059:1117": {
+      "inputs": {
+        "value": [
+          "1118",
+          0
+        ]
+      },
+      "class_type": "PrimitiveFloat",
+      "_meta": {
+        "title": "浮点数"
+      }
+    },
+    "1059:1167": {
+      "inputs": {
+        "expression": "a + b",
+        "values.a": [
+          "1059:1047",
+          1
+        ],
+        "values.b": [
+          "1094",
+          0
+        ]
+      },
+      "class_type": "ComfyMathExpression",
+      "_meta": {
+        "title": "数学表达式"
+      }
+    },
+    "1059:1057": {
+      "inputs": {
+        "num_guides": "5",
+        "num_guides.frame_idx_1": 0,
+        "num_guides.strength_1": [
+          "1059:1117",
+          0
+        ],
+        "num_guides.frame_idx_2": [
+          "950",
+          0
+        ],
+        "num_guides.strength_2": [
+          "1059:1117",
+          0
+        ],
+        "num_guides.frame_idx_3": [
+          "1059:1046",
+          1
+        ],
+        "num_guides.strength_3": [
+          "1059:1117",
+          0
+        ],
+        "num_guides.frame_idx_4": [
+          "1059:1047",
+          1
+        ],
+        "num_guides.strength_4": [
+          "1059:1117",
+          0
+        ],
+        "num_guides.frame_idx_5": [
+          "1059:1167",
+          1
+        ],
+        "num_guides.strength_5": [
+          "1059:1117",
+          0
+        ],
+        "positive": [
+          "948",
+          1
+        ],
+        "negative": [
+          "818",
+          0
+        ],
+        "vae": [
+          "679",
+          0
+        ],
+        "latent": [
+          "1136",
+          0
+        ],
+        "num_guides.image_1": [
+          "954:830",
+          0
+        ],
+        "num_guides.image_2": [
+          "1071:1067",
+          0
+        ],
+        "num_guides.image_3": [
+          "1081:1077",
+          0
+        ],
+        "num_guides.image_4": [
+          "1091:1087",
+          0
+        ],
+        "num_guides.image_5": [
+          "1156:1152",
+          0
+        ]
+      },
+      "class_type": "LTXVAddGuideMulti",
+      "_meta": {
+        "title": "LTXVAddGuideMulti"
+      }
+    }
+  },
+  "createdAt": "2026-06-15T10:14:13.387Z",
+  "updatedAt": "2026-06-15T10:14:13.387Z"
+}

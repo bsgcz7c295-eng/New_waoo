@@ -1,0 +1,248 @@
+{
+  "id": "z-image-controlnet",
+  "name": "Z-Image ControlNet 图生图",
+  "createdAt": "2026-06-15T18:12:59.0607434+08:00",
+  "typeLabel": "自定义",
+  "type": "custom",
+  "workflow": {
+    "9": {
+      "inputs": {
+        "filename_prefix": "z-image",
+        "images": [
+          "43",
+          0
+        ]
+      },
+      "class_type": "SaveImage",
+      "_meta": {
+        "title": "保存图像"
+      }
+    },
+    "39": {
+      "inputs": {
+        "clip_name": "Qwen\\qwen_3_4b.safetensors",
+        "type": "lumina2",
+        "device": "default"
+      },
+      "class_type": "CLIPLoader",
+      "_meta": {
+        "title": "加载CLIP"
+      }
+    },
+    "40": {
+      "inputs": {
+        "vae_name": "Z-image\\ae_zimgturbo.safetensors"
+      },
+      "class_type": "VAELoader",
+      "_meta": {
+        "title": "加载VAE"
+      }
+    },
+    "41": {
+      "inputs": {
+        "width": 1088,
+        "height": 1920,
+        "batch_size": 1
+      },
+      "class_type": "EmptySD3LatentImage",
+      "_meta": {
+        "title": "空Latent图像（SD3）"
+      }
+    },
+    "42": {
+      "inputs": {
+        "conditioning": [
+          "45",
+          0
+        ]
+      },
+      "class_type": "ConditioningZeroOut",
+      "_meta": {
+        "title": "条件零化"
+      }
+    },
+    "43": {
+      "inputs": {
+        "samples": [
+          "44",
+          0
+        ],
+        "vae": [
+          "40",
+          0
+        ]
+      },
+      "class_type": "VAEDecode",
+      "_meta": {
+        "title": "VAE解码"
+      }
+    },
+    "44": {
+      "inputs": {
+        "seed": 57,
+        "steps": 9,
+        "cfg": 1,
+        "sampler_name": "dpmpp_2m",
+        "scheduler": "sgm_uniform",
+        "denoise": 1,
+        "model": [
+          "49",
+          0
+        ],
+        "positive": [
+          "45",
+          0
+        ],
+        "negative": [
+          "42",
+          0
+        ],
+        "latent_image": [
+          "41",
+          0
+        ]
+      },
+      "class_type": "KSampler",
+      "_meta": {
+        "title": "K采样器"
+      }
+    },
+    "45": {
+      "inputs": {
+        "text": "全身站立写实肖像，中国年轻女性，26岁，极美，五官精致带有疏离感，黑色长发柔顺披散，穿着简洁高雅的米白色及踝长裙，细带平底凉鞋，双手自然交叠于身前，站姿挺拔优雅，表情淡然宁静，眼神清澈而不带情绪，纯白背景，均匀柔和顶光，无阴影，三分法全身构图，皮肤无瑕，整体形象端庄美丽，masterpiece, best quality, cinematic, realistic, full body standing, elegant posture, crystal_zit",
+        "clip": [
+          "60",
+          1
+        ]
+      },
+      "class_type": "CLIPTextEncode",
+      "_meta": {
+        "title": "CLIP文本编码"
+      }
+    },
+    "46": {
+      "inputs": {
+        "unet_name": "Z-Image\\z_image_turbo_bf16.safetensors",
+        "weight_dtype": "default"
+      },
+      "class_type": "UNETLoader",
+      "_meta": {
+        "title": "UNet加载器"
+      }
+    },
+    "47": {
+      "inputs": {
+        "shift": 3,
+        "model": [
+          "60",
+          0
+        ]
+      },
+      "class_type": "ModelSamplingAuraFlow",
+      "_meta": {
+        "title": "采样算法（AuraFlow）"
+      }
+    },
+    "48": {
+      "inputs": {
+        "name": "Z-Image-Turbo-Fun-Controlnet-Union-2.1-2602-8steps.safetensors"
+      },
+      "class_type": "ModelPatchLoader",
+      "_meta": {
+        "title": "加载模型补丁"
+      }
+    },
+    "49": {
+      "inputs": {
+        "strength": 1,
+        "model": [
+          "47",
+          0
+        ],
+        "model_patch": [
+          "48",
+          0
+        ],
+        "vae": [
+          "40",
+          0
+        ],
+        "image": [
+          "51",
+          0
+        ]
+      },
+      "class_type": "QwenImageDiffsynthControlnet",
+      "_meta": {
+        "title": "QwenImageDiffsynthControlnet"
+      }
+    },
+    "50": {
+      "inputs": {
+        "image": "中国古风室外演武场场景描述 (1).png"
+      },
+      "class_type": "LoadImage",
+      "_meta": {
+        "title": "加载图像"
+      }
+    },
+    "51": {
+      "inputs": {
+        "preprocessor": "OpenposePreprocessor",
+        "resolution": 1024,
+        "image": [
+          "50",
+          0
+        ]
+      },
+      "class_type": "AIO_Preprocessor",
+      "_meta": {
+        "title": "AIO Aux Preprocessor"
+      }
+    },
+    "53": {
+      "inputs": {
+        "images": [
+          "51",
+          0
+        ]
+      },
+      "class_type": "PreviewImage",
+      "_meta": {
+        "title": "预览图像"
+      }
+    },
+    "59": {
+      "inputs": {
+        "images": [
+          "43",
+          0
+        ]
+      },
+      "class_type": "PreviewImage",
+      "_meta": {
+        "title": "预览图像"
+      }
+    },
+    "60": {
+      "inputs": {
+        "lora_name": "Z-Image\\zImageT_zidiusArt_melancholy.safetensors",
+        "strength_model": 0.7,
+        "strength_clip": 0.9,
+        "model": [
+          "46",
+          0
+        ],
+        "clip": [
+          "39",
+          0
+        ]
+      },
+      "class_type": "LoraLoader",
+      "_meta": {
+        "title": "加载LoRA"
+      }
+    }
+  },
+  "updatedAt": "2026-06-15T11:08:44.547Z"
+}

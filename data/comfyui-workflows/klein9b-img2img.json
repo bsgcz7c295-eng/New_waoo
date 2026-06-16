@@ -1,0 +1,375 @@
+{
+  "id": "klein9b-img2img",
+  "name": "Klein9B 图生图",
+  "type": "custom",
+  "typeLabel": "自定义",
+  "workflow": {
+    "21": {
+      "inputs": {
+        "sampler_name": "euler"
+      },
+      "class_type": "KSamplerSelect",
+      "_meta": {
+        "title": "K采样器选择"
+      }
+    },
+    "22": {
+      "inputs": {
+        "noise_seed": 1040120282355372
+      },
+      "class_type": "RandomNoise",
+      "_meta": {
+        "title": "随机噪波"
+      }
+    },
+    "23": {
+      "inputs": {
+        "cfg": 1,
+        "model": [
+          "42",
+          0
+        ],
+        "positive": [
+          "50",
+          0
+        ],
+        "negative": [
+          "52",
+          0
+        ]
+      },
+      "class_type": "CFGGuider",
+      "_meta": {
+        "title": "CFG引导器"
+      }
+    },
+    "25": {
+      "inputs": {
+        "text": [
+          "65",
+          0
+        ],
+        "clip": [
+          "39",
+          0
+        ]
+      },
+      "class_type": "CLIPTextEncode",
+      "_meta": {
+        "title": "CLIP文本编码"
+      }
+    },
+    "26": {
+      "inputs": {
+        "steps": 4,
+        "width": [
+          "56",
+          0
+        ],
+        "height": [
+          "56",
+          1
+        ]
+      },
+      "class_type": "Flux2Scheduler",
+      "_meta": {
+        "title": "Flux2调度器"
+      }
+    },
+    "27": {
+      "inputs": {
+        "value": 720
+      },
+      "class_type": "INTConstant",
+      "_meta": {
+        "title": "图片高度"
+      }
+    },
+    "28": {
+      "inputs": {
+        "noise": [
+          "22",
+          0
+        ],
+        "guider": [
+          "23",
+          0
+        ],
+        "sampler": [
+          "21",
+          0
+        ],
+        "sigmas": [
+          "26",
+          0
+        ],
+        "latent_image": [
+          "57",
+          0
+        ]
+      },
+      "class_type": "SamplerCustomAdvanced",
+      "_meta": {
+        "title": "自定义采样器（高级）"
+      }
+    },
+    "29": {
+      "inputs": {
+        "samples": [
+          "28",
+          0
+        ],
+        "vae": [
+          "35",
+          0
+        ]
+      },
+      "class_type": "VAEDecode",
+      "_meta": {
+        "title": "VAE解码"
+      }
+    },
+    "35": {
+      "inputs": {
+        "vae_name": "Z-image\\ae_zimgturbo.safetensors"
+      },
+      "class_type": "VAELoader",
+      "_meta": {
+        "title": "加载VAE"
+      }
+    },
+    "39": {
+      "inputs": {
+        "clip_name": "Qwen\\qwen_3_4b.safetensors",
+        "type": "qwen_image",
+        "device": "default"
+      },
+      "class_type": "CLIPLoader",
+      "_meta": {
+        "title": "加载CLIP"
+      }
+    },
+    "42": {
+      "inputs": {
+        "unet_name": "Z-Image\\z_image_turbo_bf16.safetensors",
+        "weight_dtype": "default"
+      },
+      "class_type": "UNETLoader",
+      "_meta": {
+        "title": "UNet加载器"
+      }
+    },
+    "44": {
+      "inputs": {
+        "text": "LOGO,水印，字幕，中文字幕，blurry, out of focus, overexposed, underexposed, low contrast, washed out colors, excessive noise, grainy texture, poor lighting, flickering, motion blur, distorted proportions, unnatural skin tones, deformed facial features, asymmetrical face, missing facial features, extra limbs, disfigured hands, wrong hand count, artifacts around text, unreadable text on shirt or hat, incorrect lettering on cap (“PNTR”), incorrect t-shirt slogan (“JUST DO IT”), missing microphone, misplaced microphone, inconsistent perspective, camera shake, incorrect depth of field, background too sharp, background clutter, distracting reflections, harsh shadows, inconsistent lighting direction, color banding, cartoonish rendering, 3D CGI look, unrealistic materials, uncanny valley effect, incorrect ethnicity, wrong gender, exaggerated expressions, smiling, laughing, exaggerated sadness, wrong gaze direction, eyes looking at camera, mismatched lip sync, silent or muted audio, distorted voice, robotic voice, echo, background noise, off-sync audio, missing sniff sounds, incorrect dialogue, added dialogue, repetitive speech, jittery movement, awkward pauses, incorrect timing, unnatural transitions, inconsistent framing, tilted camera, missing door or shelves, missing shallow depth of field, flat lighting, inconsistent tone, cinematic oversaturation, stylized filters, or AI artifacts.",
+        "clip": [
+          "39",
+          0
+        ]
+      },
+      "class_type": "CLIPTextEncode",
+      "_meta": {
+        "title": "CLIP文本编码"
+      }
+    },
+    "45": {
+      "inputs": {
+        "pixels": [
+          "55",
+          0
+        ],
+        "vae": [
+          "35",
+          0
+        ]
+      },
+      "class_type": "VAEEncode",
+      "_meta": {
+        "title": "VAE编码"
+      }
+    },
+    "48": {
+      "inputs": {
+        "filename_prefix": "ComfyUI",
+        "images": [
+          "212",
+          0
+        ]
+      },
+      "class_type": "SaveImage",
+      "_meta": {
+        "title": "保存图像"
+      }
+    },
+    "50": {
+      "inputs": {
+        "conditioning": [
+          "25",
+          0
+        ],
+        "latent": [
+          "45",
+          0
+        ]
+      },
+      "class_type": "ReferenceLatent",
+      "_meta": {
+        "title": "参考Latent"
+      }
+    },
+    "52": {
+      "inputs": {
+        "conditioning": [
+          "44",
+          0
+        ],
+        "latent": [
+          "45",
+          0
+        ]
+      },
+      "class_type": "ReferenceLatent",
+      "_meta": {
+        "title": "参考Latent"
+      }
+    },
+    "53": {
+      "inputs": {
+        "value": 1280
+      },
+      "class_type": "INTConstant",
+      "_meta": {
+        "title": "图片宽度"
+      }
+    },
+    "55": {
+      "inputs": {
+        "aspect_ratio": "original",
+        "proportional_width": 1,
+        "proportional_height": 1,
+        "fit": "letterbox",
+        "method": "lanczos",
+        "round_to_multiple": "8",
+        "scale_to_side": "longest",
+        "scale_to_length": 1920,
+        "background_color": "#000000",
+        "image": [
+          "106",
+          0
+        ]
+      },
+      "class_type": "LayerUtility: ImageScaleByAspectRatio V2",
+      "_meta": {
+        "title": "图层工具：按宽高比缩放 V2"
+      }
+    },
+    "56": {
+      "inputs": {
+        "image": [
+          "55",
+          0
+        ]
+      },
+      "class_type": "GetImageSize",
+      "_meta": {
+        "title": "获取图像尺寸"
+      }
+    },
+    "57": {
+      "inputs": {
+        "width": [
+          "53",
+          0
+        ],
+        "height": [
+          "27",
+          0
+        ],
+        "batch_size": 1
+      },
+      "class_type": "EmptyFlux2LatentImage",
+      "_meta": {
+        "title": "空Latent图像（Flux2）"
+      }
+    },
+    "65": {
+      "inputs": {
+        "prompt": "超远景 / 逆光剪影。卡通猴子站在峡谷边缘的岩石上，烈日从背后照射，装甲轮廓被金色光边勾勒，披风随风扬起。史诗感开场，气势铺垫\n低角度推进 / 中景。镜头贴地高速前推，卡通猴子突然跃下悬崖，身体前倾俯冲，装甲表面反射出锐利高光。速度启动，压迫感增强\n侧向高速跟拍 / 全身。卡通猴子在峡谷中低空穿梭，岩壁快速后退形成运动模糊，尾部能量光轨划出流线型曲线。动势流畅，空间穿越感\n近景特写 / 装甲结构。镜头快速拉近，装甲分片滑动重组，金色能量核心透过半透明外壳闪烁脉冲。机械细节展示，科技质感\n环绕运镜 / 半身。镜头环绕卡通猴子旋转，他在空中翻转一周，单手伸展，能量在手臂纹路间流动。动态姿态展示，角色比例清晰\n高速俯冲 / 纵深构图。卡通猴子向地面急速坠落，空气在身体周围形成冲击波层层扩散。紧张加速，视觉压缩\n冲击落地 / 爆发瞬间。地面被重击震裂，碎石悬浮，能量波向四周扩散形成圆环。力量爆发，高对比视觉冲击\n慢动作拉近 / 面部特写。尘土散去，卡通猴子抬头，眼部光芒点亮，核心能量稳定输出，呼吸节奏清晰。情绪强化，英雄定格\n高空拉远 / 史诗全景收尾。镜头迅速后拉升空，卡通猴子冲天而起拖出金色光轨，峡谷被拉成抽象线条构图。规模对比，震撼收束",
+        "start_index": 0,
+        "max_rows": 1000,
+        "remove_empty_lines": ""
+      },
+      "class_type": "easy promptLine",
+      "_meta": {
+        "title": "提示词行"
+      }
+    },
+    "70": {
+      "inputs": {
+        "images": [
+          "55",
+          0
+        ]
+      },
+      "class_type": "PreviewImage",
+      "_meta": {
+        "title": "预览图像"
+      }
+    },
+    "106": {
+      "inputs": {
+        "image": "中国古风室外演武场场景描述 (1).png"
+      },
+      "class_type": "LoadImage",
+      "_meta": {
+        "title": "加载图像"
+      }
+    },
+    "211": {
+      "inputs": {
+        "clean_file_cache": true,
+        "clean_processes": true,
+        "clean_dlls": true,
+        "retry_times": 3,
+        "anything": [
+          "29",
+          0
+        ]
+      },
+      "class_type": "RAMCleanup",
+      "_meta": {
+        "title": "释放内存"
+      }
+    },
+    "212": {
+      "inputs": {
+        "clean_file_cache": true,
+        "clean_processes": true,
+        "clean_dlls": true,
+        "retry_times": 3,
+        "anything": [
+          "211",
+          0
+        ]
+      },
+      "class_type": "RAMCleanup",
+      "_meta": {
+        "title": "释放内存"
+      }
+    },
+    "223": {
+      "inputs": {
+        "images": [
+          "212",
+          0
+        ]
+      },
+      "class_type": "PreviewImage",
+      "_meta": {
+        "title": "预览图像"
+      }
+    }
+  },
+  "createdAt": "2026-06-15T10:14:52.121Z",
+  "updatedAt": "2026-06-15T10:14:52.121Z"
+}
