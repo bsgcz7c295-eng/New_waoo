@@ -1,7 +1,7 @@
 'use client'
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { useTranslations } from 'next-intl'
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import ImagePreviewModal from '@/components/ui/ImagePreviewModal'
 import TaskStatusInline from '@/components/task/TaskStatusInline'
 import { resolveTaskPresentationState } from '@/lib/task/presentation'
@@ -84,6 +84,8 @@ export default function GlobalAssetPicker({
     loading: externalLoading
 }: GlobalAssetPickerProps) {
     const t = useTranslations('assetPicker')
+    const queryClient = useQueryClient()
+    const fileInputRef = useRef<HTMLInputElement>(null)
 
     // 轻量级查询：只查询当前 type，不附带任务状态
     const charactersQuery = useQuery({
@@ -159,6 +161,7 @@ export default function GlobalAssetPicker({
     const [previewImage, setPreviewImage] = useState<string | null>(null)
     const [previewAudio, setPreviewAudio] = useState<string | null>(null)
     const [isPlayingAudio, setIsPlayingAudio] = useState(false)
+    const [isUploading, setIsUploading] = useState(false)
     const audioRef = useRef<HTMLAudioElement | null>(null)
 
     // 提取稳定的 refetch 引用，避免 useEffect 无限循环
@@ -204,6 +207,60 @@ export default function GlobalAssetPicker({
             onSelect(selectedId)
         }
     }
+
+    // 上传本地图片并创建资产
+    const handleUploadLocalImage = useCallback(async (file: File) => {
+        if (type === 'voice') return // 不支持上传音色
+        setIsUploading(true)
+        try {
+            const formData = new FormData()
+            formData.append('file', file)
+            formData.append('kind', type === 'prop' ? 'location' : type)
+            formData.append('name', file.name.replace(/\.[^/.]+$/, ''))
+
+            const res = await apiFetch('/api/assets', {
+                method: 'POST',
+                body: formData,
+            })
+
+            if (!res.ok) {
+                const error = await res.json().catch(() => ({ error: 'Upload failed' }))
+                throw new Error(error.error || 'Upload failed')
+            }
+
+            const data = await res.json()
+            const newAssetId = data.asset?.id
+
+            if (newAssetId) {
+                // 刷新资产列表
+                if (type === 'character') {
+                    queryClient.invalidateQueries({ queryKey: ['global-assets', 'characters'] })
+                } else if (type === 'location') {
+                    queryClient.invalidateQueries({ queryKey: ['global-assets', 'locations'] })
+                } else if (type === 'prop') {
+                    queryClient.invalidateQueries({ queryKey: ['global-assets', 'props'] })
+                }
+
+                // 自动选中新创建的资产
+                setSelectedId(newAssetId)
+            }
+        } catch (error) {
+            console.error('Upload failed:', error)
+            alert(error instanceof Error ? error.message : 'Upload failed')
+        } finally {
+            setIsUploading(false)
+            if (fileInputRef.current) {
+                fileInputRef.current.value = ''
+            }
+        }
+    }, [type, queryClient])
+
+    const handleFileSelect = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0]
+        if (file) {
+            handleUploadLocalImage(file)
+        }
+    }, [handleUploadLocalImage])
 
     const filteredCharacters = characters.filter(c =>
         c.name.toLowerCase().includes(searchQuery.toLowerCase())
@@ -272,15 +329,38 @@ export default function GlobalAssetPicker({
 
     return (
         <div className="fixed inset-0 glass-overlay flex items-center justify-center z-50">
+                <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    onChange={handleFileSelect}
+                    className="hidden"
+                />
                 <div className="glass-surface-modal w-[600px] max-h-[80vh] flex flex-col">
                 {/* 头部 */}
                 <div className="flex items-center justify-between px-6 py-4">
                     <h2 className="text-lg font-semibold text-[var(--glass-text-primary)]">
                         {type === 'character' ? t('selectCharacter') : type === 'location' ? t('selectLocation') : type === 'prop' ? t('selectProp') : t('selectVoice')}
                     </h2>
-                    <button onClick={onClose} className="glass-btn-base glass-btn-soft text-[var(--glass-text-tertiary)]">
-                        <XMarkIcon className="w-5 h-5" />
-                    </button>
+                    <div className="flex items-center gap-2">
+                        {type !== 'voice' && (
+                            <button
+                                onClick={() => fileInputRef.current?.click()}
+                                disabled={isUploading}
+                                className="glass-btn-base glass-btn-primary flex items-center gap-1.5 px-3 py-1.5 text-sm rounded-lg"
+                            >
+                                {isUploading ? (
+                                    <TaskStatusInline state={loadingState} className="text-white [&>span]:sr-only [&_svg]:text-white" />
+                                ) : (
+                                    <AppIcon name="upload" className="w-4 h-4" />
+                                )}
+                                {t('uploadLocalImage')}
+                            </button>
+                        )}
+                        <button onClick={onClose} className="glass-btn-base glass-btn-soft text-[var(--glass-text-tertiary)]">
+                            <XMarkIcon className="w-5 h-5" />
+                        </button>
+                    </div>
                 </div>
 
                 {/* 搜索栏 */}
@@ -313,7 +393,20 @@ export default function GlobalAssetPicker({
                                 <MicrophoneIcon className="w-12 h-12 mb-2" />
                             )}
                             <p>{t('noAssets')}</p>
-                            <p className="text-sm mt-1">{t('createInAssetHub')}</p>
+                            {type !== 'voice' && (
+                                <button
+                                    onClick={() => fileInputRef.current?.click()}
+                                    disabled={isUploading}
+                                    className="mt-3 glass-btn-base glass-btn-primary flex items-center gap-2 px-4 py-2 text-sm rounded-lg"
+                                >
+                                    {isUploading ? (
+                                        <TaskStatusInline state={loadingState} className="text-white [&>span]:sr-only [&_svg]:text-white" />
+                                    ) : (
+                                        <AppIcon name="upload" className="w-4 h-4" />
+                                    )}
+                                    {t('uploadLocalImage')}
+                                </button>
+                            )}
                         </div>
                     ) : items.length === 0 ? (
                         <div className="flex items-center justify-center h-40 text-[var(--glass-text-tertiary)]">

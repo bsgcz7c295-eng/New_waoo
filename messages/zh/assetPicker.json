@@ -15,5 +15,9 @@
     "copySuccess": "导入成功",
     "copyFailed": "导入失败",
     "preview": "试听",
-    "stop": "停止"
+    "stop": "停止",
+    "uploadLocalImage": "上传本地图片",
+    "uploading": "上传中...",
+    "uploadSuccess": "上传成功",
+    "uploadFailed": "上传失败"
 }
