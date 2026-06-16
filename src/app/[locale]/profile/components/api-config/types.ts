@@ -205,6 +205,7 @@ export const PRESET_PROVIDERS: Omit<Provider, 'apiKey' | 'hasApiKey'>[] = [
     { id: 'minimax', name: 'MiniMax Hailuo', baseUrl: 'https://api.minimaxi.com/v1' },
     { id: 'vidu', name: 'Vidu' },
     { id: 'fal', name: 'FAL' },
+    { id: 'comfyui', name: 'ComfyUI Local' },
 ]
 
 const ZH_PROVIDER_NAME_MAP: Record<string, string> = {
