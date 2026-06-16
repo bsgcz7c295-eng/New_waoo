@@ -209,6 +209,20 @@ export function ProviderAdvancedFields({
               className="glass-input-base px-3 py-1.5 text-[12px]"
               autoFocus
             />
+            <select
+              value={currentType}
+              onChange={(event) => {
+                const newType = event.target.value as ProviderCardModelType
+                state.setShowAddForm(newType)
+              }}
+              className="glass-input-base px-2 py-1.5 text-[12px]"
+            >
+              {Array.from(addableModelTypes).map((type) => (
+                <option key={type} value={type}>
+                  {typeLabel(type, t)}
+                </option>
+              ))}
+            </select>
             <button onClick={state.handleCancelAdd} className="glass-icon-btn-sm">
               <AppIcon name="close" className="h-4 w-4" />
             </button>
