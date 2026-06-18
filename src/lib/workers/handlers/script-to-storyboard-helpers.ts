@@ -164,25 +164,9 @@ export async function persistStoryboardOutputs(params: {
         where: { storyboardId: storyboard.id },
       })
 
-      const panelData = clipEntry.finalPanels.map((panel, i) => ({
-        storyboardId: storyboard.id,
-        panelIndex: i,
-        panelNumber: panel.panel_number || i + 1,
-        shotType: panel.shot_type || '中景',
-        cameraMove: panel.camera_move || '固定',
-        description: panel.description || null,
-        videoPrompt: panel.video_prompt || null,
-        location: panel.location || null,
-        characters: panel.characters ? JSON.stringify(panel.characters) : null,
-        props: panel.props ? JSON.stringify(panel.props) : null,
-        srtSegment: panel.source_text || null,
-        photographyRules: panel.photographyPlan ? JSON.stringify(panel.photographyPlan) : null,
-        actingNotes: panel.actingNotes ? JSON.stringify(panel.actingNotes) : null,
-        duration: panel.duration || null,
-      }))
       const panelModel = tx.novelPromotionPanel as unknown as {
-        createManyAndReturn: (args: {
-          data: Record<string, unknown>[]
+        create: (args: {
+          data: Record<string, unknown>
           select: {
             id: true
             panelIndex: true
@@ -191,28 +175,44 @@ export async function persistStoryboardOutputs(params: {
             characters: true
             props: true
           }
-        }) => Promise<Array<{
+        }) => Promise<{
           id: string
           panelIndex: number
           description: string | null
           srtSegment: string | null
           characters: string | null
           props: string | null
-        }>>
+        }>
       }
-      const createdPanels = await panelModel.createManyAndReturn({
-        data: panelData,
-        select: {
-          id: true,
-          panelIndex: true,
-          description: true,
-          srtSegment: true,
-          characters: true,
-          props: true,
-        },
-      })
       const persistedPanels: PersistedStoryboard['panels'] = []
-      for (const created of createdPanels) {
+      for (let i = 0; i < clipEntry.finalPanels.length; i += 1) {
+        const panel = clipEntry.finalPanels[i]
+        const created = await panelModel.create({
+          data: {
+            storyboardId: storyboard.id,
+            panelIndex: i,
+            panelNumber: panel.panel_number || i + 1,
+            shotType: panel.shot_type || '中景',
+            cameraMove: panel.camera_move || '固定',
+            description: panel.description || null,
+            videoPrompt: panel.video_prompt || null,
+            location: panel.location || null,
+            characters: panel.characters ? JSON.stringify(panel.characters) : null,
+            props: panel.props ? JSON.stringify(panel.props) : null,
+            srtSegment: panel.source_text || null,
+            photographyRules: panel.photographyPlan ? JSON.stringify(panel.photographyPlan) : null,
+            actingNotes: panel.actingNotes ? JSON.stringify(panel.actingNotes) : null,
+            duration: panel.duration || null,
+          },
+          select: {
+            id: true,
+            panelIndex: true,
+            description: true,
+            srtSegment: true,
+            characters: true,
+            props: true,
+          },
+        })
         panelIdByStoryboardRef.set(`${storyboard.id}:${created.panelIndex}`, created.id)
         panelIdByStoryboardRef.set(`${clipEntry.clipId}:${created.panelIndex}`, created.id)
         persistedPanels.push(created)

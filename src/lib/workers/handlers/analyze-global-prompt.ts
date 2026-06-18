@@ -1,6 +1,6 @@
 import { buildCharactersLibInfo, type CharacterBrief } from './analyze-global-parse'
 import type { Locale } from '@/i18n/routing'
-import { getPromptTemplate, PROMPT_IDS } from '@/lib/prompt-i18n'
+import { fillTemplate, getPromptTemplate, PROMPT_IDS } from '@/lib/prompt-i18n'
 
 export type AnalyzeGlobalPromptTemplates = {
   characterPromptTemplate: string
@@ -23,15 +23,18 @@ export function buildAnalyzeGlobalPrompts(params: {
   existingLocationInfo: string[]
   existingPropNames: string[]
 }) {
-  const characterPrompt = params.templates.characterPromptTemplate
-    .replace('{input}', params.chunk)
-    .replace('{characters_lib_info}', buildCharactersLibInfo(params.existingCharacters))
-  const locationPrompt = params.templates.locationPromptTemplate
-    .replace('{input}', params.chunk)
-    .replace('{locations_lib_name}', params.existingLocationInfo.join(', ') || '无')
-  const propPrompt = params.templates.propPromptTemplate
-    .replace('{input}', params.chunk)
-    .replace('{props_lib_name}', params.existingPropNames.join(', ') || '无')
+  const characterPrompt = fillTemplate(params.templates.characterPromptTemplate, {
+    input: params.chunk,
+    characters_lib_info: buildCharactersLibInfo(params.existingCharacters),
+  })
+  const locationPrompt = fillTemplate(params.templates.locationPromptTemplate, {
+    input: params.chunk,
+    locations_lib_name: params.existingLocationInfo.join(', ') || '无',
+  })
+  const propPrompt = fillTemplate(params.templates.propPromptTemplate, {
+    input: params.chunk,
+    props_lib_name: params.existingPropNames.join(', ') || '无',
+  })
   return {
     characterPrompt,
     locationPrompt,

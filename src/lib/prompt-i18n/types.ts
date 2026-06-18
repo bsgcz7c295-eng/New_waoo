@@ -8,6 +8,8 @@ export type PromptVariables = Record<string, string>
 export type PromptCatalogEntry = {
   pathStem: string
   variableKeys: readonly string[]
+  /** Template version for tracking changes. Increment when the template is modified. */
+  version?: number
 }
 
 export type BuildPromptInput = {

@@ -16,7 +16,7 @@ import {
   type ModelCapabilities,
   type UnifiedModelType,
 } from '@/lib/model-config-contract'
-import { findBuiltinCapabilities } from '@/lib/model-capabilities/catalog'
+import { findBuiltinCapabilitiesSync } from '@/lib/model-capabilities/catalog'
 import { findBuiltinPricingCatalogEntry } from '@/lib/model-pricing/catalog'
 import type { VideoPricingTier } from '@/lib/model-pricing/video-tier'
 
@@ -216,7 +216,7 @@ export const GET = apiHandler(async () => {
     }
 
     if (provider && modelId) {
-      const capabilities = findBuiltinCapabilities(modelType, provider, modelId)
+      const capabilities = findBuiltinCapabilitiesSync(modelType, provider, modelId)
       if (capabilities) {
         option.capabilities = capabilities
       }

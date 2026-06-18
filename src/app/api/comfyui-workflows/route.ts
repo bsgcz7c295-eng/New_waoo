@@ -7,7 +7,7 @@ export const GET = apiHandler(async () => {
   const authResult = await requireUserAuth()
   if (isErrorResponse(authResult)) return authResult
 
-  const workflows = listWorkflows()
+  const workflows = await listWorkflows()
   return NextResponse.json({ workflows })
 })
 
@@ -23,7 +23,7 @@ export const POST = apiHandler(async (request: NextRequest) => {
   }
 
   try {
-    const workflow = importWorkflowFromJson(name, json)
+    const workflow = await importWorkflowFromJson(name, json)
     return NextResponse.json({ workflow })
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Import failed'
@@ -42,7 +42,7 @@ export const DELETE = apiHandler(async (request: NextRequest) => {
     return NextResponse.json({ error: 'id is required' }, { status: 400 })
   }
 
-  const deleted = deleteWorkflow(id)
+  const deleted = await deleteWorkflow(id)
   if (!deleted) {
     return NextResponse.json({ error: 'Workflow not found' }, { status: 404 })
   }

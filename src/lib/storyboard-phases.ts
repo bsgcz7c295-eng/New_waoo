@@ -10,7 +10,7 @@ import { executeAiTextStep } from '@/lib/ai-runtime'
 import { logAIAnalysis } from '@/lib/logging/semantic'
 import { buildCharactersIntroduction } from '@/lib/constants'
 import type { Locale } from '@/i18n/routing'
-import { getPromptTemplate, PROMPT_IDS } from '@/lib/prompt-i18n'
+import { fillTemplate, getPromptTemplate, PROMPT_IDS } from '@/lib/prompt-i18n'
 import {
     buildPromptAssetContext,
     compileAssetPromptFragments,
@@ -287,27 +287,24 @@ export async function executePhase1(
         props: clipProps,
     }, null, 2)
 
-    // 读取剧本
+    // 构建提示词
     const screenplay = parseScreenplay(clip.screenplay)
     if (clip.screenplay && !screenplay) {
         _ulogWarn(`[Phase 1] Clip ${clipId}: 剧本JSON解析失败`)
     }
-
-    // 构建提示词
-    let planPrompt = planPromptTemplate
-        .replace('{characters_lib_name}', charactersLibName)
-        .replace('{locations_lib_name}', locationsLibName)
-        .replace('{characters_introduction}', charactersIntroduction)
-        .replace('{characters_appearance_list}', filteredAppearanceList)
-        .replace('{characters_full_description}', filteredFullDescription)
-        .replace('{props_description}', filteredPropsDescription)
-        .replace('{clip_json}', clipJson)
-
-    if (screenplay) {
-        planPrompt = planPrompt.replace('{clip_content}', `【剧本格式】\n${JSON.stringify(screenplay, null, 2)}`)
-    } else {
-        planPrompt = planPrompt.replace('{clip_content}', clip.content || '')
-    }
+    const clipContent = screenplay
+        ? `【剧本格式】\n${JSON.stringify(screenplay, null, 2)}`
+        : (clip.content || '')
+    const planPrompt = fillTemplate(planPromptTemplate, {
+        characters_lib_name: charactersLibName,
+        locations_lib_name: locationsLibName,
+        characters_introduction: charactersIntroduction,
+        characters_appearance_list: filteredAppearanceList,
+        characters_full_description: filteredFullDescription,
+        props_description: filteredPropsDescription,
+        clip_json: clipJson,
+        clip_content: clipContent,
+    })
 
     // 记录发送给 AI 的完整 prompt
     logAIAnalysis(session.user.id, session.user.name, projectId, projectName, {
@@ -425,13 +422,13 @@ export async function executePhase2(
     })).propsDescriptionText
 
     // 构建提示词
-    const cinematographerPrompt = cinematographerPromptTemplate
-        .replace('{panels_json}', JSON.stringify(planPanels, null, 2))
-        .replace('{panel_count}', planPanels.length.toString())
-        .replace(/\{panel_count\}/g, planPanels.length.toString())
-        .replace('{locations_description}', filteredLocationsDescription)
-        .replace('{characters_info}', filteredFullDescription)
-        .replace('{props_description}', filteredPropsDescription)
+    const cinematographerPrompt = fillTemplate(cinematographerPromptTemplate, {
+        panels_json: JSON.stringify(planPanels, null, 2),
+        panel_count: String(planPanels.length),
+        locations_description: filteredLocationsDescription,
+        characters_info: filteredFullDescription,
+        props_description: filteredPropsDescription,
+    })
 
     let photographyRules: PhotographyRule[] = []
 
@@ -513,11 +510,11 @@ export async function executePhase2Acting(
     const filteredFullDescription = getFilteredFullDescription(novelPromotionData.characters, clipCharacters)
 
     // 构建提示词
-    const actingPrompt = actingPromptTemplate
-        .replace('{panels_json}', JSON.stringify(planPanels, null, 2))
-        .replace('{panel_count}', planPanels.length.toString())
-        .replace(/\{panel_count\}/g, planPanels.length.toString())
-        .replace('{characters_info}', filteredFullDescription)
+    const actingPrompt = fillTemplate(actingPromptTemplate, {
+        panels_json: JSON.stringify(planPanels, null, 2),
+        panel_count: String(planPanels.length),
+        characters_info: filteredFullDescription,
+    })
 
     let actingDirections: ActingDirection[] = []
 
@@ -612,11 +609,12 @@ export async function executePhase3(
     })).propsDescriptionText
 
     // 构建提示词
-    const detailPrompt = detailPromptTemplate
-        .replace('{panels_json}', JSON.stringify(planPanels, null, 2))
-        .replace('{characters_age_gender}', filteredFullDescription)  // 改用完整描述
-        .replace('{locations_description}', filteredLocationsDescription)
-        .replace('{props_description}', filteredPropsDescription)
+    const detailPrompt = fillTemplate(detailPromptTemplate, {
+        panels_json: JSON.stringify(planPanels, null, 2),
+        characters_age_gender: filteredFullDescription,
+        locations_description: filteredLocationsDescription,
+        props_description: filteredPropsDescription,
+    })
 
     // 记录发送给 AI 的完整 prompt
     logAIAnalysis(session.user.id, session.user.name, projectId, projectName, {

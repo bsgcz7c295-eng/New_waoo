@@ -140,7 +140,7 @@ describe('worker character-image-task-handler behavior', () => {
   })
 
   it('invalid payload artStyle -> explicit error', async () => {
-    await expect(handleCharacterImageTask(buildJob({ imageIndex: 0, artStyle: 'noir' }))).rejects.toThrow(
+    await expect(handleCharacterImageTask(buildJob({ imageIndex: 0, artStyle: 'totally-fake-style-xyz' }))).rejects.toThrow(
       'Invalid artStyle in IMAGE_CHARACTER payload',
     )
   })

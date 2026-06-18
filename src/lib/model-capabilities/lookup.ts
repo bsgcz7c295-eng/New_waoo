@@ -6,7 +6,7 @@ import {
   type ModelCapabilities,
   type UnifiedModelType,
 } from '@/lib/model-config-contract'
-import { findBuiltinCapabilities, findBuiltinCapabilityCatalogEntry } from '@/lib/model-capabilities/catalog'
+import { findBuiltinCapabilitiesSync, findBuiltinCapabilityCatalogEntrySync } from '@/lib/model-capabilities/catalog'
 
 export type CapabilitySelectionValidationCode =
   | 'CAPABILITY_SELECTION_INVALID'
@@ -333,7 +333,7 @@ export function resolveGenerationOptionsForModel(input: {
 export function resolveBuiltinModelContext(modelType: UnifiedModelType, modelKey: string): CapabilityModelContext | null {
   const parsed = parseModelKeyStrict(modelKey)
   if (!parsed) return null
-  const entry = findBuiltinCapabilityCatalogEntry(modelType, parsed.provider, parsed.modelId)
+  const entry = findBuiltinCapabilityCatalogEntrySync(modelType, parsed.provider, parsed.modelId)
   if (!entry) return null
   return {
     modelType: entry.modelType,
@@ -347,5 +347,5 @@ export function resolveBuiltinCapabilitiesByModelKey(
 ): ModelCapabilities | undefined {
   const parsed = parseModelKeyStrict(modelKey)
   if (!parsed) return undefined
-  return findBuiltinCapabilities(modelType, parsed.provider, parsed.modelId)
+  return findBuiltinCapabilitiesSync(modelType, parsed.provider, parsed.modelId)
 }

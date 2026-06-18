@@ -11,8 +11,12 @@ const PROMPT_NODE_TYPES = new Set(['CLIPTextEncode'])
 const NEGATIVE_PROMPT_KEYWORDS = ['negative', 'bad', 'worst', 'low quality', 'ugly']
 const LOAD_IMAGE_TYPES = new Set(['LoadImage', 'LoadImageFromPath'])
 const SAMPLER_TYPES = new Set(['KSampler', 'KSamplerAdvanced', 'SamplerCustom'])
-const LATENT_TYPES = new Set(['EmptyLatentImage', 'EmptyLatentBatch', 'LatentUpscale'])
+const LATENT_TYPES = new Set(['EmptyLatentImage', 'EmptyLatentBatch', 'LatentUpscale', 'EmptySD3LatentImage'])
 const CHECKPOINT_TYPES = new Set(['CheckpointLoaderSimple', 'CheckpointLoader', 'unCLIPCheckpointLoader'])
+const UNET_TYPES = new Set(['UNETLoader', 'DiffusersLoader'])
+const CLIP_TYPES = new Set(['CLIPLoader', 'DualCLIPLoader', 'CLIPVisionLoader'])
+const VAE_TYPES = new Set(['VAELoader', 'VAELoaderOptions'])
+const LORA_TYPES = new Set(['LoraLoader', 'LoraLoaderModelOnly', 'LoraLoaderBoth'])
 const VIDEO_NODE_TYPES = new Set([
   'SaveAnimatedWEBP', 'VHS_VideoCombine', 'VHS_LoadVideo',
   'WanImageToVideo', 'WanTextToVideo', 'SVD_img2vid_Conditioning',
@@ -29,6 +33,10 @@ export function analyzeWorkflow(workflow: ComfyUIWorkflow): WorkflowAnalysis {
     samplerNodes: [],
     latentNodes: [],
     checkpointNodes: [],
+    unetNodes: [],
+    clipNodes: [],
+    vaeNodes: [],
+    loraNodes: [],
     videoNodes: [],
   }
 
@@ -63,6 +71,22 @@ export function analyzeWorkflow(workflow: ComfyUIWorkflow): WorkflowAnalysis {
 
     if (CHECKPOINT_TYPES.has(classType)) {
       analysis.checkpointNodes.push(nodeId)
+    }
+
+    if (UNET_TYPES.has(classType)) {
+      analysis.unetNodes.push(nodeId)
+    }
+
+    if (CLIP_TYPES.has(classType)) {
+      analysis.clipNodes.push(nodeId)
+    }
+
+    if (VAE_TYPES.has(classType)) {
+      analysis.vaeNodes.push(nodeId)
+    }
+
+    if (LORA_TYPES.has(classType)) {
+      analysis.loraNodes.push(nodeId)
     }
 
     if (VIDEO_NODE_TYPES.has(classType)) {
@@ -206,7 +230,7 @@ function parseAspectRatio(aspectRatio?: string): { width: number; height: number
 
 export function prepareWorkflow(config: ComfyUIWorkflowConfig): WorkflowInjectionResult {
   const { workflow, prompt, negativePrompt, referenceImages, options } = config
-  const cloned: ComfyUIWorkflow = JSON.parse(JSON.stringify(workflow))
+  const cloned: ComfyUIWorkflow = structuredClone(workflow)
   const analysis = analyzeWorkflow(cloned)
 
   if (prompt) {
@@ -240,7 +264,7 @@ export function prepareWorkflow(config: ComfyUIWorkflowConfig): WorkflowInjectio
     const node = cloned[nodeId]
     if (!node) continue
     if (node.class_type === 'SaveImage' && node.inputs.filename_prefix) {
-      node.inputs.filename_prefix = `waoowaoo_${Date.now()}`
+      node.inputs.filename_prefix = `waoowaoo/${Date.now()}`
     }
   }
 

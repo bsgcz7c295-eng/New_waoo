@@ -20,11 +20,14 @@ If the image only shows part of the body, infer the missing parts consistently.
 
 ## Forbidden content
 Do not mention:
-- Skin color
-- Eye color
+- Skin color (unless it is a distinctive non-natural tone, e.g. blue, green)
 - Facial expression
 - Pose or action
 - Background
+
+## Optional content (include only if visually prominent)
+- Eye color (include if the image clearly shows a distinctive eye color, especially for anime/fantasy characters)
+- Lip color (include only if distinctly colored, e.g. red lipstick)
 
 ## Output format
 Return one plain English paragraph only (about 120-220 words).

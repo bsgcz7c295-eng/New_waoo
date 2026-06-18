@@ -1,4 +1,4 @@
-import fs from 'node:fs'
+import { readdir, readFile, stat } from 'node:fs/promises'
 import path from 'node:path'
 import {
   composeModelKey,
@@ -47,7 +47,7 @@ function getProviderKey(providerId: string): string {
 
 function cloneCapabilities(capabilities: ModelCapabilities | undefined): ModelCapabilities | undefined {
   if (!capabilities) return undefined
-  return JSON.parse(JSON.stringify(capabilities)) as ModelCapabilities
+  return structuredClone(capabilities)
 }
 
 function normalizeEntry(raw: unknown, filePath: string, index: number): BuiltinCapabilityCatalogEntry {
@@ -109,35 +109,36 @@ function buildCache(entries: BuiltinCapabilityCatalogEntry[], signature: string)
   return { signature, entries, exact, byProviderKey }
 }
 
-function resolveCatalogFiles(): string[] {
-  return fs
-    .readdirSync(CATALOG_DIR, { withFileTypes: true })
+async function resolveCatalogFiles(): Promise<string[]> {
+  const dirents = await readdir(CATALOG_DIR, { withFileTypes: true })
+  return dirents
     .filter((entry) => entry.isFile() && entry.name.endsWith('.json'))
     .map((entry) => path.join(CATALOG_DIR, entry.name))
     .sort((left, right) => left.localeCompare(right))
 }
 
-function buildCatalogSignature(files: string[]): string {
+async function buildCatalogSignature(files: string[]): Promise<string> {
+  const stats = await Promise.all(files.map((f) => stat(f)))
   return files
-    .map((filePath) => {
-      const stat = fs.statSync(filePath)
-      return `${filePath}:${stat.mtimeMs}:${stat.size}`
-    })
+    .map((filePath, i) => `${filePath}:${stats[i].mtimeMs}:${stats[i].size}`)
     .join('|')
 }
 
-function loadCatalog(): CatalogCache {
+async function loadCatalog(): Promise<CatalogCache> {
   const entries: BuiltinCapabilityCatalogEntry[] = []
-  const files = resolveCatalogFiles()
+  const files = await resolveCatalogFiles()
 
   if (files.length === 0) {
     throw new Error(`CAPABILITY_CATALOG_MISSING: no json file in ${CATALOG_DIR}`)
   }
-  const signature = buildCatalogSignature(files)
+  const signature = await buildCatalogSignature(files)
   if (cache && cache.signature === signature) return cache
 
-  for (const filePath of files) {
-    const raw = fs.readFileSync(filePath, 'utf8')
+  const fileContents = await Promise.all(
+    files.map((filePath) => readFile(filePath, 'utf8').then((raw) => ({ filePath, raw })))
+  )
+
+  for (const { filePath, raw } of fileContents) {
     const parsed = JSON.parse(raw) as unknown
     if (!Array.isArray(parsed)) {
       throw new Error(`CAPABILITY_CATALOG_INVALID: ${filePath} must be array`)
@@ -151,8 +152,9 @@ function loadCatalog(): CatalogCache {
   return cache
 }
 
-export function listBuiltinCapabilityCatalog(): BuiltinCapabilityCatalogEntry[] {
-  return loadCatalog().entries.map((entry) => ({
+export async function listBuiltinCapabilityCatalog(): Promise<BuiltinCapabilityCatalogEntry[]> {
+  const loaded = await loadCatalog()
+  return loaded.entries.map((entry) => ({
     ...entry,
     capabilities: cloneCapabilities(entry.capabilities),
   }))
@@ -166,12 +168,12 @@ const CAPABILITY_PROVIDER_ALIASES: Readonly<Record<string, string>> = {
   'gemini-compatible': 'google',
 }
 
-export function findBuiltinCapabilityCatalogEntry(
+export async function findBuiltinCapabilityCatalogEntry(
   modelType: UnifiedModelType,
   provider: string,
   modelId: string,
-): BuiltinCapabilityCatalogEntry | null {
-  const loaded = loadCatalog()
+): Promise<BuiltinCapabilityCatalogEntry | null> {
+  const loaded = await loadCatalog()
   const modelKey = composeModelKey(provider, modelId)
   if (!modelKey) return null
 
@@ -210,14 +212,114 @@ export function findBuiltinCapabilityCatalogEntry(
   return null
 }
 
-export function findBuiltinCapabilities(
+export async function findBuiltinCapabilities(
   modelType: UnifiedModelType,
   provider: string,
   modelId: string,
-): ModelCapabilities | undefined {
-  return findBuiltinCapabilityCatalogEntry(modelType, provider, modelId)?.capabilities
+): Promise<ModelCapabilities | undefined> {
+  const entry = await findBuiltinCapabilityCatalogEntry(modelType, provider, modelId)
+  return entry?.capabilities
 }
 
 export function resetBuiltinCapabilityCatalogCacheForTest() {
   cache = null
+}
+
+// ─── Sync wrappers (backward compatibility) ──────────────────────
+
+function ensureSyncCache(): CatalogCache {
+  if (cache) return cache
+  // Synchronously load on first call (small directory, cached after)
+  const entries: BuiltinCapabilityCatalogEntry[] = []
+  let files: string[] = []
+  try {
+    // Use sync fs for the sync wrapper path
+    const fsSync = require('node:fs')
+    const pathSync = require('node:path')
+    const catDir = pathSync.resolve(process.cwd(), 'standards/capabilities')
+    const dirents = fsSync.readdirSync(catDir, { withFileTypes: true })
+    files = dirents
+      .filter((e: { isFile: () => boolean; name: string }) => e.isFile() && e.name.endsWith('.json'))
+      .map((e: { name: string }) => pathSync.join(catDir, e.name))
+      .sort((a: string, b: string) => a.localeCompare(b))
+  } catch {
+    throw new Error('CATALOG_DIR_MISSING: standards/capabilities directory not found')
+  }
+  if (files.length === 0) {
+    throw new Error('CATALOG_MISSING: no json files in standards/capabilities')
+  }
+  for (const filePath of files) {
+    const raw = require('node:fs').readFileSync(filePath, 'utf8')
+    const parsed = JSON.parse(raw) as unknown
+    if (!Array.isArray(parsed)) continue
+    for (let i = 0; i < parsed.length; i++) {
+      try {
+        entries.push(normalizeEntry(parsed[i], filePath, i))
+      } catch {
+        // Skip invalid entries in sync path
+      }
+    }
+  }
+  cache = buildCache(entries, files.map((f: string) => f).join('|'))
+  return cache
+}
+
+export function listBuiltinCapabilityCatalogSync(): BuiltinCapabilityCatalogEntry[] {
+  const loaded = ensureSyncCache()
+  return loaded.entries.map((entry) => ({
+    ...entry,
+    capabilities: cloneCapabilities(entry.capabilities),
+  }))
+}
+
+export function findBuiltinCapabilitiesSync(
+  modelType: UnifiedModelType,
+  provider: string,
+  modelId: string,
+): ModelCapabilities | undefined {
+  const entry = findBuiltinCapabilityCatalogEntrySync(modelType, provider, modelId)
+  return entry?.capabilities
+}
+
+export function findBuiltinCapabilityCatalogEntrySync(
+  modelType: UnifiedModelType,
+  provider: string,
+  modelId: string,
+): BuiltinCapabilityCatalogEntry | null {
+  const loaded = ensureSyncCache()
+  const modelKey = composeModelKey(provider, modelId)
+  if (!modelKey) return null
+
+  const exactKey = `${modelType}::${modelKey}`
+  const exactMatch = loaded.exact.get(exactKey)
+  if (exactMatch) {
+    return {
+      ...exactMatch,
+      capabilities: cloneCapabilities(exactMatch.capabilities),
+    }
+  }
+
+  const providerKey = getProviderKey(provider)
+  const fallbackKey = `${modelType}::${providerKey}::${modelId}`
+  const fallback = loaded.byProviderKey.get(fallbackKey)
+  if (fallback) {
+    return {
+      ...fallback,
+      capabilities: cloneCapabilities(fallback.capabilities),
+    }
+  }
+
+  const aliasTarget = CAPABILITY_PROVIDER_ALIASES[providerKey]
+  if (aliasTarget) {
+    const aliasKey = `${modelType}::${aliasTarget}::${modelId}`
+    const aliasMatch = loaded.byProviderKey.get(aliasKey)
+    if (aliasMatch) {
+      return {
+        ...aliasMatch,
+        capabilities: cloneCapabilities(aliasMatch.capabilities),
+      }
+    }
+  }
+
+  return null
 }

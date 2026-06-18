@@ -22,7 +22,7 @@ import {
   resolveBuiltinModelContext,
   validateCapabilitySelectionsPayload,
 } from '@/lib/model-capabilities/lookup'
-import { findBuiltinCapabilities } from '@/lib/model-capabilities/catalog'
+import { findBuiltinCapabilitiesSync } from '@/lib/model-capabilities/catalog'
 import {
   findBuiltinPricingCatalogEntry,
   listBuiltinPricingCatalog,
@@ -244,7 +244,7 @@ function resolveVideoDurationRangeFromCapabilities(
   provider: string,
   modelId: string,
 ): { min: number; max: number } | null {
-  const capabilities = findBuiltinCapabilities('video', provider, modelId)
+  const capabilities = findBuiltinCapabilitiesSync('video', provider, modelId)
   const options = capabilities?.video?.durationOptions
   if (!Array.isArray(options) || options.length === 0) return null
 
@@ -527,7 +527,7 @@ function resolveProviderByIdOrKey(providers: StoredProvider[], providerId: strin
 }
 
 function withBuiltinCapabilities(model: StoredModel): StoredModel {
-  const capabilities = findBuiltinCapabilities(model.type, model.provider, model.modelId)
+      const capabilities = findBuiltinCapabilitiesSync(model.type, model.provider, model.modelId)
   if (!capabilities) {
     return {
       ...model,
@@ -1721,7 +1721,7 @@ export const GET = apiHandler(async () => {
         provider: p.id,
         price: 0,
         // alias 回退自动从 google catalog 获取 capabilities
-        capabilities: findBuiltinCapabilities(preset.type, p.id, preset.modelId),
+        capabilities: findBuiltinCapabilitiesSync(preset.type, p.id, preset.modelId),
       }
       disabledPresets.push({ ...withDisplayPricing(base, pricingDisplay), enabled: false })
     }

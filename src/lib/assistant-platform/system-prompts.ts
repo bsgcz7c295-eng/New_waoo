@@ -8,25 +8,38 @@ const PROMPT_FILE_BY_ID: Record<AssistantPromptId, string> = {
   tutorial: 'tutorial.system.txt',
 }
 
-const promptCache = new Map<AssistantPromptId, string>()
+interface CacheEntry {
+  content: string
+  mtimeMs: number
+}
+
+const promptCache = new Map<AssistantPromptId, CacheEntry>()
 
 function loadPromptTemplate(promptId: AssistantPromptId): string {
-  const cached = promptCache.get(promptId)
-  if (cached) return cached
-
   const fileName = PROMPT_FILE_BY_ID[promptId]
   const filePath = path.resolve(process.cwd(), 'lib', 'prompts', 'skills', fileName)
-  if (!fs.existsSync(filePath)) {
+
+  try {
+    const stat = fs.statSync(filePath)
+    const cached = promptCache.get(promptId)
+
+    if (cached && cached.mtimeMs === stat.mtimeMs) {
+      return cached.content
+    }
+
+    const content = fs.readFileSync(filePath, 'utf8').trim()
+    if (!content) {
+      throw new Error(`ASSISTANT_SYSTEM_PROMPT_EMPTY: ${filePath}`)
+    }
+
+    promptCache.set(promptId, { content, mtimeMs: stat.mtimeMs })
+    return content
+  } catch (err) {
+    if (err instanceof Error && err.message.startsWith('ASSISTANT_SYSTEM_PROMPT_EMPTY')) {
+      throw err
+    }
     throw new Error(`ASSISTANT_SYSTEM_PROMPT_FILE_MISSING: ${filePath}`)
   }
-
-  const content = fs.readFileSync(filePath, 'utf8').trim()
-  if (!content) {
-    throw new Error(`ASSISTANT_SYSTEM_PROMPT_EMPTY: ${filePath}`)
-  }
-
-  promptCache.set(promptId, content)
-  return content
 }
 
 function replacePromptVariables(template: string, vars: Record<string, string>): string {

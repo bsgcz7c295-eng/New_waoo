@@ -15,7 +15,7 @@ import {
   parseScreenplayPayload,
   readText,
 } from './screenplay-convert-helpers'
-import { getPromptTemplate, PROMPT_IDS } from '@/lib/prompt-i18n'
+import { fillTemplate, getPromptTemplate, PROMPT_IDS } from '@/lib/prompt-i18n'
 import { resolveAnalysisModel } from './resolve-analysis-model'
 
 const MAX_SCREENPLAY_ATTEMPTS = 2
@@ -120,12 +120,13 @@ export async function handleScreenplayConvertTask(job: Job<TaskJobData>) {
         throw new Error(`clip ${clip.id} content is empty`)
       }
 
-      const prompt = screenplayPromptTemplate
-        .replace('{clip_content}', clipContent)
-        .replace('{locations_lib_name}', locationsLibName)
-        .replace('{characters_lib_name}', charactersLibName)
-        .replace('{characters_introduction}', charactersIntroduction)
-        .replace('{clip_id}', clip.id)
+      const prompt = fillTemplate(screenplayPromptTemplate, {
+        clip_content: clipContent,
+        locations_lib_name: locationsLibName,
+        characters_lib_name: charactersLibName,
+        characters_introduction: charactersIntroduction,
+        clip_id: clip.id,
+      })
 
       // 记录 prompt 输入
       onProjectNameAvailable(projectId, project.name)

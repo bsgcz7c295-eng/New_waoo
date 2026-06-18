@@ -1,3 +1,4 @@
+import { fillTemplate } from '@/lib/prompt-i18n'
 import { buildCharactersIntroduction } from '@/lib/constants'
 import { normalizeAnyError } from '@/lib/errors/normalize'
 import { createScopedLogger } from '@/lib/logging/core'
@@ -228,21 +229,20 @@ export async function runScriptToStoryboardOrchestrator(
         2,
       )
 
-      let phase1Prompt = promptTemplates.phase1PlanTemplate
-        .replace('{characters_lib_name}', charactersLibName)
-        .replace('{locations_lib_name}', locationsLibName)
-        .replace('{characters_introduction}', charactersIntroduction)
-        .replace('{characters_appearance_list}', filteredAppearanceList)
-        .replace('{characters_full_description}', filteredFullDescription)
-        .replace('{props_description}', filteredPropsDescription)
-        .replace('{clip_json}', clipJson)
-
       const screenplay = parseScreenplay(clip.screenplay)
-      if (screenplay) {
-        phase1Prompt = phase1Prompt.replace('{clip_content}', `【剧本格式】\n${JSON.stringify(screenplay, null, 2)}`)
-      } else {
-        phase1Prompt = phase1Prompt.replace('{clip_content}', clipContent)
-      }
+      const phase1ClipContent = screenplay
+        ? `【剧本格式】\n${JSON.stringify(screenplay, null, 2)}`
+        : clipContent
+      const phase1Prompt = fillTemplate(promptTemplates.phase1PlanTemplate, {
+        characters_lib_name: charactersLibName,
+        locations_lib_name: locationsLibName,
+        characters_introduction: charactersIntroduction,
+        characters_appearance_list: filteredAppearanceList,
+        characters_full_description: filteredFullDescription,
+        props_description: filteredPropsDescription,
+        clip_json: clipJson,
+        clip_content: phase1ClipContent,
+      })
 
       const phase1Meta = withStepMeta(
         `clip_${clip.id}_phase1`,
@@ -307,23 +307,26 @@ export async function runScriptToStoryboardOrchestrator(
         },
       )
 
-      const phase2Prompt = promptTemplates.phase2CinematographyTemplate
-        .replace('{panels_json}', JSON.stringify(planPanels, null, 2))
-        .replace(/\{panel_count\}/g, String(planPanels.length))
-        .replace('{locations_description}', filteredLocationsDescription)
-        .replace('{characters_info}', filteredFullDescription)
-        .replace('{props_description}', filteredPropsDescription)
+      const phase2Prompt = fillTemplate(promptTemplates.phase2CinematographyTemplate, {
+        panels_json: JSON.stringify(planPanels, null, 2),
+        panel_count: String(planPanels.length),
+        locations_description: filteredLocationsDescription,
+        characters_info: filteredFullDescription,
+        props_description: filteredPropsDescription,
+      })
 
-      const phase2ActingPrompt = promptTemplates.phase2ActingTemplate
-        .replace('{panels_json}', JSON.stringify(planPanels, null, 2))
-        .replace(/\{panel_count\}/g, String(planPanels.length))
-        .replace('{characters_info}', filteredFullDescription)
+      const phase2ActingPrompt = fillTemplate(promptTemplates.phase2ActingTemplate, {
+        panels_json: JSON.stringify(planPanels, null, 2),
+        panel_count: String(planPanels.length),
+        characters_info: filteredFullDescription,
+      })
 
-      const phase3Prompt = promptTemplates.phase3DetailTemplate
-        .replace('{panels_json}', JSON.stringify(planPanels, null, 2))
-        .replace('{characters_age_gender}', filteredFullDescription)
-        .replace('{locations_description}', filteredLocationsDescription)
-        .replace('{props_description}', filteredPropsDescription)
+      const phase3Prompt = fillTemplate(promptTemplates.phase3DetailTemplate, {
+        panels_json: JSON.stringify(planPanels, null, 2),
+        characters_age_gender: filteredFullDescription,
+        locations_description: filteredLocationsDescription,
+        props_description: filteredPropsDescription,
+      })
 
       const [
         { parsed: photographyRules },

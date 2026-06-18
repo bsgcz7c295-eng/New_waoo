@@ -5,7 +5,12 @@ import type { PromptId } from './prompt-ids'
 import type { PromptLocale } from './types'
 import { PromptI18nError } from './errors'
 
-const templateCache = new Map<string, string>()
+interface CacheEntry {
+  content: string
+  mtimeMs: number
+}
+
+const templateCache = new Map<string, CacheEntry>()
 
 function buildCacheKey(promptId: PromptId, locale: PromptLocale) {
   return `${promptId}:${locale}`
@@ -21,14 +26,20 @@ export function getPromptTemplate(promptId: PromptId, locale: PromptLocale): str
     )
   }
 
-  const cacheKey = buildCacheKey(promptId, locale)
-  const cached = templateCache.get(cacheKey)
-  if (cached) return cached
-
   const filePath = path.join(process.cwd(), 'lib', 'prompts', `${entry.pathStem}.${locale}.txt`)
-  let template = ''
+  const cacheKey = buildCacheKey(promptId, locale)
+
   try {
-    template = fs.readFileSync(filePath, 'utf-8')
+    const stat = fs.statSync(filePath)
+    const cached = templateCache.get(cacheKey)
+
+    if (cached && cached.mtimeMs === stat.mtimeMs) {
+      return cached.content
+    }
+
+    const content = fs.readFileSync(filePath, 'utf-8')
+    templateCache.set(cacheKey, { content, mtimeMs: stat.mtimeMs })
+    return content
   } catch {
     throw new PromptI18nError(
       'PROMPT_TEMPLATE_NOT_FOUND',
@@ -37,7 +48,4 @@ export function getPromptTemplate(promptId: PromptId, locale: PromptLocale): str
       { filePath, locale },
     )
   }
-
-  templateCache.set(cacheKey, template)
-  return template
 }

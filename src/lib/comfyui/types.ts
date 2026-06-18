@@ -17,6 +17,10 @@ export interface WorkflowAnalysis {
   samplerNodes: string[]
   latentNodes: string[]
   checkpointNodes: string[]
+  unetNodes: string[]
+  clipNodes: string[]
+  vaeNodes: string[]
+  loraNodes: string[]
   videoNodes: string[]
 }
 

@@ -12,8 +12,8 @@ import {
   type ModelCapabilities,
 } from '@/lib/model-config-contract'
 import {
-  findBuiltinCapabilities,
-  listBuiltinCapabilityCatalog,
+  findBuiltinCapabilitiesSync,
+  listBuiltinCapabilityCatalogSync,
 } from '@/lib/model-capabilities/catalog'
 import { validateCapabilitySelectionForModel } from '@/lib/model-capabilities/lookup'
 import { resolveBuiltinPricing } from '@/lib/model-pricing/lookup'
@@ -147,10 +147,10 @@ function resolveTextUnitPrice(model: string, tokenType: 'input' | 'output', cust
 function resolveVideoCapabilities(model: string): ModelCapabilities | undefined {
   const parsed = parseModelKeyStrict(model)
   if (parsed) {
-    return findBuiltinCapabilities('video', parsed.provider, parsed.modelId)
+    return findBuiltinCapabilitiesSync('video', parsed.provider, parsed.modelId)
   }
 
-  const candidates = listBuiltinCapabilityCatalog().filter(
+  const candidates = listBuiltinCapabilityCatalogSync().filter(
     (entry) => entry.modelType === 'video' && entry.modelId === model,
   )
   if (candidates.length !== 1) return undefined

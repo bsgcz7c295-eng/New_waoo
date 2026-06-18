@@ -137,6 +137,8 @@ export function shouldRetryStepError(error: unknown, message: string, retryable:
     || lowerMessage.includes('json format invalid')
     || lowerMessage.includes('invalid json output')
     || lowerMessage.includes('parse')
+    || lowerMessage.includes('colon expected')
+    || lowerMessage.includes('json repair failed')
 }
 
 export type StepRunner = (

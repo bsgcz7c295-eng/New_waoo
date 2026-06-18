@@ -29,7 +29,7 @@ import {
   persistClips,
   resolveClipRecordId,
 } from './story-to-script-helpers'
-import { getPromptTemplate, PROMPT_IDS } from '@/lib/prompt-i18n'
+import { fillTemplate, getPromptTemplate, PROMPT_IDS } from '@/lib/prompt-i18n'
 import { resolveAnalysisModel } from './resolve-analysis-model'
 import { createArtifact, listArtifacts } from '@/lib/run-runtime/service'
 import { assertWorkflowRunActive, withWorkflowRunLease } from '@/lib/run-runtime/workflow-lease'
@@ -284,13 +284,14 @@ export async function handleStoryToScriptTask(job: Job<TaskJobData>) {
           throw new Error(`retry clip content is empty: ${retryClipId}`)
         }
 
-        const screenplayPrompt = screenplayPromptTemplate
-          .replace('{clip_content}', clipContent)
-          .replace('{locations_lib_name}', asString(splitPayload.locationsLibName) || '无')
-          .replace('{characters_lib_name}', asString(splitPayload.charactersLibName) || '无')
-          .replace('{props_lib_name}', asString(splitPayload.propsLibName) || '无')
-          .replace('{characters_introduction}', asString(splitPayload.charactersIntroduction) || '暂无角色介绍')
-          .replace('{clip_id}', retryClipId)
+        const screenplayPrompt = fillTemplate(screenplayPromptTemplate, {
+          clip_content: clipContent,
+          locations_lib_name: asString(splitPayload.locationsLibName) || '无',
+          characters_lib_name: asString(splitPayload.charactersLibName) || '无',
+          props_lib_name: asString(splitPayload.propsLibName) || '无',
+          characters_introduction: asString(splitPayload.charactersIntroduction) || '暂无角色介绍',
+          clip_id: retryClipId,
+        })
 
         const stepMeta: StoryToScriptStepMeta = {
           stepId: retryStepKey,

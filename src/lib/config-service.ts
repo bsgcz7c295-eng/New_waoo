@@ -13,7 +13,7 @@ import {
   composeModelKey as composeStrictModelKey,
   parseModelKeyStrict,
 } from '@/lib/model-config-contract'
-import { findBuiltinCapabilities } from '@/lib/model-capabilities/catalog'
+import { findBuiltinCapabilitiesSync } from '@/lib/model-capabilities/catalog'
 import { resolveGenerationOptionsForModel } from '@/lib/model-capabilities/lookup'
 import {
   type WorkflowConcurrencyConfig,
@@ -200,7 +200,7 @@ export function resolveModelCapabilityGenerationOptions(input: {
     throw new Error(`MODEL_KEY_INVALID: ${input.modelKey}`)
   }
 
-  const capabilities = findBuiltinCapabilities(input.modelType, parsed.provider, parsed.modelId)
+  const capabilities = findBuiltinCapabilitiesSync(input.modelType, parsed.provider, parsed.modelId)
   const resolved = resolveGenerationOptionsForModel({
     modelType: input.modelType,
     modelKey: input.modelKey,

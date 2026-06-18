@@ -1,13 +1,15 @@
-import { readFileSync, writeFileSync, existsSync, mkdirSync, readdirSync, unlinkSync } from 'fs'
+import { readFile, writeFile, access, mkdir, readdir, unlink } from 'fs/promises'
 import { join } from 'path'
 import type { ComfyUIWorkflow, WorkflowType } from './types'
 import { analyzeWorkflow, getWorkflowTypeLabel } from './workflow-engine'
 
 const WORKFLOWS_DIR = join(process.cwd(), 'data', 'comfyui-workflows')
 
-function ensureDir(): void {
-  if (!existsSync(WORKFLOWS_DIR)) {
-    mkdirSync(WORKFLOWS_DIR, { recursive: true })
+async function ensureDir(): Promise<void> {
+  try {
+    await access(WORKFLOWS_DIR)
+  } catch {
+    await mkdir(WORKFLOWS_DIR, { recursive: true })
   }
 }
 
@@ -21,8 +23,8 @@ export interface SavedWorkflow {
   updatedAt: string
 }
 
-export function saveWorkflow(id: string, name: string, workflow: ComfyUIWorkflow): SavedWorkflow {
-  ensureDir()
+export async function saveWorkflow(id: string, name: string, workflow: ComfyUIWorkflow): Promise<SavedWorkflow> {
+  await ensureDir()
   const analysis = analyzeWorkflow(workflow)
   const now = new Date().toISOString()
 
@@ -37,29 +39,33 @@ export function saveWorkflow(id: string, name: string, workflow: ComfyUIWorkflow
   }
 
   const filePath = join(WORKFLOWS_DIR, `${id}.json`)
-  writeFileSync(filePath, JSON.stringify(saved, null, 2), 'utf-8')
+  await writeFile(filePath, JSON.stringify(saved, null, 2), 'utf-8')
   return saved
 }
 
-export function loadWorkflow(id: string): SavedWorkflow | null {
+export async function loadWorkflow(id: string): Promise<SavedWorkflow | null> {
   const filePath = join(WORKFLOWS_DIR, `${id}.json`)
-  if (!existsSync(filePath)) return null
   try {
-    const content = readFileSync(filePath, 'utf-8')
+    await access(filePath)
+  } catch {
+    return null
+  }
+  try {
+    const content = await readFile(filePath, 'utf-8')
     return JSON.parse(content) as SavedWorkflow
   } catch {
     return null
   }
 }
 
-export function listWorkflows(): SavedWorkflow[] {
-  ensureDir()
-  const files = readdirSync(WORKFLOWS_DIR).filter(f => f.endsWith('.json'))
+export async function listWorkflows(): Promise<SavedWorkflow[]> {
+  await ensureDir()
+  const files = (await readdir(WORKFLOWS_DIR)).filter(f => f.endsWith('.json'))
   const workflows: SavedWorkflow[] = []
 
   for (const file of files) {
     try {
-      const content = readFileSync(join(WORKFLOWS_DIR, file), 'utf-8')
+      const content = await readFile(join(WORKFLOWS_DIR, file), 'utf-8')
       workflows.push(JSON.parse(content) as SavedWorkflow)
     } catch {
       continue
@@ -69,18 +75,22 @@ export function listWorkflows(): SavedWorkflow[] {
   return workflows.sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())
 }
 
-export function deleteWorkflow(id: string): boolean {
+export async function deleteWorkflow(id: string): Promise<boolean> {
   const filePath = join(WORKFLOWS_DIR, `${id}.json`)
-  if (!existsSync(filePath)) return false
   try {
-    unlinkSync(filePath)
+    await access(filePath)
+  } catch {
+    return false
+  }
+  try {
+    await unlink(filePath)
     return true
   } catch {
     return false
   }
 }
 
-export function importWorkflowFromJson(name: string, jsonContent: string): SavedWorkflow {
+export async function importWorkflowFromJson(name: string, jsonContent: string): Promise<SavedWorkflow> {
   let parsed: unknown
   try {
     parsed = JSON.parse(jsonContent)
@@ -93,11 +103,30 @@ export function importWorkflowFromJson(name: string, jsonContent: string): Saved
   }
 
   const workflow = parsed as ComfyUIWorkflow
-  const hasNodes = Object.values(workflow).some(
-    (node) => node && typeof node === 'object' && 'class_type' in node
+  const nodeEntries = Object.entries(workflow)
+  const hasNodes = nodeEntries.some(
+    ([, node]) => node && typeof node === 'object' && 'class_type' in node
   )
   if (!hasNodes) {
     throw new Error('Invalid ComfyUI workflow: no nodes with class_type found')
+  }
+
+  // Validate each node has required structure
+  for (const [nodeId, node] of nodeEntries) {
+    if (!node || typeof node !== 'object') continue
+    if (!('class_type' in node)) continue
+    if (typeof node.class_type !== 'string' || !node.class_type) {
+      throw new Error(`Invalid node "${nodeId}": class_type must be a non-empty string`)
+    }
+    if (!node.inputs || typeof node.inputs !== 'object') {
+      throw new Error(`Invalid node "${nodeId}": inputs must be an object`)
+    }
+  }
+
+  // Check for essential node types
+  const classTypes = new Set(nodeEntries.map(([, n]) => n?.class_type).filter(Boolean))
+  if (!classTypes.has('SaveImage') && !classTypes.has('SaveAnimatedWEBP') && !classTypes.has('VHS_VideoCombine')) {
+    throw new Error('Workflow must contain a SaveImage, SaveAnimatedWEBP, or VHS_VideoCombine output node')
   }
 
   // Try to extract name from workflow JSON, fallback to provided name
@@ -108,13 +137,16 @@ export function importWorkflowFromJson(name: string, jsonContent: string): Saved
 
   // Generate sanitized ID from the display name
   const sanitizedId = sanitizeWorkflowId(displayName)
-  
+
   // Check for duplicate IDs and append number if needed
   let id = sanitizedId
   let counter = 1
-  while (existsSync(join(WORKFLOWS_DIR, `${id}.json`))) {
-    id = `${sanitizedId}-${counter}`
-    counter++
+  const existing = await loadWorkflow(id)
+  if (existing) {
+    do {
+      id = `${sanitizedId}-${counter}`
+      counter++
+    } while (await loadWorkflow(id))
   }
 
   return saveWorkflow(id, displayName, workflow)

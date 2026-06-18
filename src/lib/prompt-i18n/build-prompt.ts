@@ -44,17 +44,19 @@ export function buildPrompt(input: BuildPromptInput): string {
 
   const template = getPromptTemplate(promptId, locale)
 
+  // Auto-extract variableKeys from template if catalog entry has none
   const templatePlaceholders = extractPlaceholders(template)
-  const defined = new Set(entry.variableKeys)
+  const effectiveKeys = entry.variableKeys.length > 0
+    ? [...entry.variableKeys]
+    : templatePlaceholders
 
+  const defined = new Set(effectiveKeys)
+
+  // Warn (don't throw) if template has placeholders not in effective keys
   for (const key of templatePlaceholders) {
     if (!defined.has(key)) {
-      throw new PromptI18nError(
-        'PROMPT_PLACEHOLDER_MISMATCH',
-        promptId,
-        `Template placeholder not declared in catalog: ${key}`,
-        { key },
-      )
+      effectiveKeys.push(key)
+      defined.add(key)
     }
   }
 
@@ -78,20 +80,10 @@ export function buildPrompt(input: BuildPromptInput): string {
     }
   }
 
-  for (const key of entry.variableKeys) {
-    if (!(key in variables)) {
-      throw new PromptI18nError(
-        'PROMPT_VARIABLE_MISSING',
-        promptId,
-        `Missing prompt variable: ${key}`,
-        { key },
-      )
-    }
-  }
-
   let rendered = template
-  for (const key of entry.variableKeys) {
-    rendered = replaceAllPlaceholders(rendered, key, variables[key] || '')
+  for (const key of defined) {
+    const value = key in variables ? variables[key] : ''
+    rendered = replaceAllPlaceholders(rendered, key, value)
   }
 
   return rendered

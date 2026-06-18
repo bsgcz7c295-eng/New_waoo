@@ -431,7 +431,6 @@ async function testArkProvider(apiKey: string): Promise<TestProviderResult> {
 
 async function testGoogleOfficial(apiKey: string): Promise<TestProviderResult> {
   await setProxy()
-  console.log('[provider-test] testGoogleOfficial')
   const steps: TestStep[] = []
   const model = 'gemini-3-flash-preview'
 
@@ -585,7 +584,6 @@ async function testMiniMaxProvider(apiKey: string): Promise<TestProviderResult> 
 
 async function testFalProvider(apiKey: string): Promise<TestProviderResult> {
   await setProxy()
-  console.log('[provider-test] testFalProvider')
   const steps: TestStep[] = []
 
   // 🔥 使用免费的 GET /v1/models 端点验证 API Key，不消耗实际资源
@@ -631,7 +629,6 @@ async function testFalProvider(apiKey: string): Promise<TestProviderResult> {
 // ---------------------------------------------------------------------------
 
 async function testViduProvider(apiKey: string): Promise<TestProviderResult> {
-  console.log('[provider-test] testViduProvider')
   const steps: TestStep[] = []
 
   // 🔥 使用免费的 GET /ent/v2/credits 积分查询端点，不消耗任何资源

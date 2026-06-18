@@ -135,12 +135,20 @@ export const TTS_VOICES = [
 ]
 
 export const ART_STYLES = [
+  // ── 经典漫画面风 ──
   {
-    value: 'american-comic',
-    label: '漫画风',
+    value: 'manga-clean',
+    label: '日漫清爽',
     preview: '漫',
-    promptZh: '日式动漫风格',
-    promptEn: 'Japanese anime style'
+    promptZh: '干净赛璐璐动漫风格，清晰描边，鲜明平涂色彩，漫画网点阴影，日式漫画美术风格。',
+    promptEn: 'Clean cel-shaded anime style, bold outlines, vibrant flat colors, manga screentone shading, Japanese comic art.'
+  },
+  {
+    value: 'manga-dark',
+    label: '日漫暗黑',
+    preview: '墨',
+    promptZh: '黑暗漫画风格，沉重墨线，戏剧性阴影，黑色电影氛围，青年漫画美学，高对比黑白加选择性色彩。',
+    promptEn: 'Dark manga style, heavy ink lines, dramatic shadows, noir atmosphere, seinen manga aesthetic, high contrast black and white with selective color.'
   },
   {
     value: 'chinese-comic',
@@ -150,6 +158,13 @@ export const ART_STYLES = [
     promptEn: 'Modern premium Chinese comic style, rich details, clean sharp line art, full texture, ultra-clear 2D anime aesthetics.'
   },
   {
+    value: 'manhua-xianxia',
+    label: '国漫仙侠',
+    preview: '仙',
+    promptZh: '中国漫画风格，飘逸衣袂，水墨渲染效果，空灵氛围，中国传统绘画影响，仙侠美学。',
+    promptEn: 'Chinese manhua style, flowing robes, ink wash rendering, ethereal atmosphere, traditional Chinese painting influence, xianxia aesthetic.'
+  },
+  {
     value: 'japanese-anime',
     label: '日系动漫风',
     preview: '日',
@@ -157,12 +172,171 @@ export const ART_STYLES = [
     promptEn: 'Modern Japanese anime style, cel shading, clean line art, visual-novel CG look, high-quality 2D style.'
   },
   {
-    value: 'realistic',
-    label: '真人风格',
+    value: 'webtoon',
+    label: '韩漫条漫',
+    preview: '韩',
+    promptZh: '韩国条漫风格，柔和渐变，精致角色设计，干净数字绘画，竖屏条漫构图，Naver条漫美学。',
+    promptEn: 'Korean webtoon style, soft gradients, detailed character design, clean digital painting, vertical panel composition, Naver webtoon aesthetic.'
+  },
+  // ── 写实 / 电影 ──
+  {
+    value: 'cinematic',
+    label: '电影质感',
+    preview: '影',
+    promptZh: '电影静帧质感，变形宽银幕光晕，浅景深，胶片颗粒，色彩分级，戏剧性灯光，35mm胶片感。',
+    promptEn: 'Cinematic still frame, anamorphic lens flare, shallow depth of field, film grain, color grading, dramatic lighting, 35mm film look.'
+  },
+  {
+    value: 'photorealistic',
+    label: '超写实',
     preview: '实',
+    promptZh: '真实电影级画面质感，真实现实场景，色彩饱满通透，画面干净精致，真实感，超高清细节。',
+    promptEn: 'Photorealistic, hyperdetailed skin texture, subsurface scattering, natural lighting, 8K resolution, DSLR quality.'
+  },
+  {
+    value: 'noir',
+    label: '黑色电影',
+    preview: ' noir',
+    promptZh: '黑色电影风格，高对比黑白，百叶窗阴影，硬方向光，侦探氛围，1940年代美学。',
+    promptEn: 'Film noir style, high contrast black and white, venetian blind shadows, hard directional lighting, detective atmosphere, 1940s aesthetic.'
+  },
+  {
+    value: 'realistic',
+    label: '真人写实',
+    preview: '真',
     promptZh: '真实电影级画面质感，真实现实场景，色彩饱满通透，画面干净精致，真实感',
     promptEn: 'Realistic cinematic look, real-world scene fidelity, rich transparent colors, clean and refined image quality.'
-  }
+  },
+  // ── 奇幻 / 朋克 ──
+  {
+    value: 'fantasy',
+    label: '西方奇幻',
+    preview: '奇',
+    promptZh: '高魔奇幻插画，史诗魔法氛围，华丽中世纪盔甲，发光奥术效果，戏剧性神圣光芒，概念艺术品质。',
+    promptEn: 'High fantasy illustration, epic magical atmosphere, ornate medieval armor, glowing arcane effects, dramatic god rays, concept art quality.'
+  },
+  {
+    value: 'cyberpunk',
+    label: '赛博朋克',
+    preview: '赛',
+    promptZh: '赛博朋克都市，霓虹灯光，全息投影，雨湿街道，高科技低生活，银翼杀手氛围。',
+    promptEn: 'Cyberpunk cityscape, neon lights, holographic displays, rain-soaked streets, high-tech low-life, Blade Runner atmosphere.'
+  },
+  {
+    value: 'steampunk',
+    label: '蒸汽朋克',
+    preview: '蒸',
+    promptZh: '蒸汽朋克美学，黄铜齿轮，维多利亚时代时装，蒸汽动力机械，温暖铜色调，精密机械细节。',
+    promptEn: 'Steampunk aesthetic, brass gears and cogs, Victorian era fashion, steam-powered machinery, warm copper tones, intricate mechanical details.'
+  },
+  {
+    value: 'solarpunk',
+    label: '太阳朋克',
+    preview: '阳',
+    promptZh: '太阳朋克乌托邦，葱郁绿色建筑，太阳能板，明亮自然光照，生态和谐，乐观未来主义设计。',
+    promptEn: 'Solarpunk utopia, lush green architecture, solar panels, bright natural lighting, ecological harmony, optimistic futuristic design.'
+  },
+  // ── 艺术画风 ──
+  {
+    value: 'watercolor',
+    label: '水彩画风',
+    preview: '彩',
+    promptZh: '水彩画风格，柔和湿画法融合，半透明色彩层，可见纸张纹理，细腻笔触。',
+    promptEn: 'Watercolor painting style, soft wet-on-wet blending, translucent color layers, paper texture visible, delicate brush strokes.'
+  },
+  {
+    value: 'oil-painting',
+    label: '油画风格',
+    preview: '油',
+    promptZh: '油画风格，可见厚涂笔触，丰富调色板，古典明暗对比灯光，画布纹理，伦勃朗光。',
+    promptEn: 'Oil painting style, visible impasto brush strokes, rich color palette, classical chiaroscuro lighting, canvas texture, Rembrandt lighting.'
+  },
+  {
+    value: 'pixel-art',
+    label: '像素复古',
+    preview: '像',
+    promptZh: '像素艺术风格，16位复古游戏美学，有限调色板，清晰像素边缘，SNES时代画面。',
+    promptEn: 'Pixel art style, 16-bit retro game aesthetic, limited color palette, crisp pixel edges, SNES era graphics.'
+  },
+  {
+    value: 'flat-design',
+    label: '扁平插画',
+    preview: '扁',
+    promptZh: '扁平设计插画，几何形状，大胆纯色，极简细节，现代矢量艺术风格，干净构图。',
+    promptEn: 'Flat design illustration, geometric shapes, bold solid colors, minimal details, modern vector art style, clean composition.'
+  },
+  // ── 情绪 / 氛围 ──
+  {
+    value: 'horror-suspense',
+    label: '恐怖悬疑',
+    preview: '怖',
+    promptZh: '恐怖氛围，压迫性黑暗，浓重阴影，诡异绿蓝色调，不安构图，扭曲视角，令人恐惧。',
+    promptEn: 'Horror atmosphere, oppressive darkness, heavy shadows, eerie green/blue tint, unsettling composition, twisted perspectives, dread-inducing.'
+  },
+  {
+    value: 'romance',
+    label: '浪漫唯美',
+    preview: '恋',
+    promptZh: '浪漫氛围，柔和黄金时刻灯光，温暖粉色调，飘落樱花，梦幻散景背景，柔和镜头光晕。',
+    promptEn: 'Romantic atmosphere, soft golden hour lighting, warm pink tones, floating cherry blossoms, dreamy bokeh background, gentle lens flare.'
+  },
+  {
+    value: 'melancholy',
+    label: '忧郁文艺',
+    preview: '忧',
+    promptZh: '忧郁情绪，去饱和冷色调，雨天氛围，孤独构图，柔和色彩，阴天天空，沉思的静谧。',
+    promptEn: 'Melancholic mood, desaturated cool tones, rain atmosphere, lonely composition, muted colors, overcast sky, contemplative stillness.'
+  },
+  {
+    value: 'epic-battle',
+    label: '热血战斗',
+    preview: '燃',
+    promptZh: '动态动作场景，速度线，冲击帧，能量爆发，戏剧性透视，运动模糊，少年漫画战斗强度。',
+    promptEn: 'Dynamic action scene, speed lines, impact frames, energy explosion, dramatic perspective, motion blur, shonen battle manga intensity.'
+  },
+  // ── 特定题材 ──
+  {
+    value: 'historical',
+    label: '古风历史',
+    preview: '古',
+    promptZh: '古代历史场景，传统建筑，古代服饰，水墨氛围，中国古典/日本传统美学，博物馆级细节。',
+    promptEn: 'Historical period setting, traditional architecture, ancient costumes, ink wash atmosphere, classical Chinese/Japanese aesthetic, museum-quality detail.'
+  },
+  {
+    value: 'modern-urban',
+    label: '现代都市',
+    preview: '都',
+    promptZh: '现代都市环境，城市夜景，霓虹招牌，当代建筑，日常生活氛围，写实城市细节。',
+    promptEn: 'Modern urban setting, city nightscape, neon signage, contemporary architecture, everyday life atmosphere, realistic city details.'
+  },
+  {
+    value: 'chibi-cute',
+    label: 'Q版可爱',
+    preview: 'Q',
+    promptZh: 'Q版风格，大头小身，圆润柔软特征，可爱萌系美学，柔和色彩点缀，大而有表现力的眼睛。',
+    promptEn: 'Chibi style, oversized head, small body, round soft features, cute kawaii aesthetic, pastel color accents, big expressive eyes.'
+  },
+  {
+    value: 'gothic',
+    label: '哥特暗黑',
+    preview: '哥',
+    promptZh: '哥特美学，暗黑华丽建筑，深红与黑色调，颓废氛围，精致蕾丝与铁艺细节，维多利亚哥特。',
+    promptEn: 'Gothic aesthetic, dark ornate architecture, deep crimson and black palette, decadent atmosphere, intricate lace and iron details, Victorian gothic.'
+  },
+  {
+    value: 'scifi-mecha',
+    label: '科幻机甲',
+    preview: '机',
+    promptZh: '机甲科幻，巨型机器人设计，金属表面细节，太空战斗氛围，全息HUD显示，EVA/高达美学。',
+    promptEn: 'Mecha sci-fi, giant robot design, metallic surface detail, space battle atmosphere, holographic HUD displays, Evangelion/Gundam aesthetic.'
+  },
+  {
+    value: 'american-comic',
+    label: '美漫风格',
+    preview: '美',
+    promptZh: '日式动漫风格',
+    promptEn: 'Japanese anime style'
+  },
 ]
 
 export type ArtStyleValue = (typeof ART_STYLES)[number]['value']

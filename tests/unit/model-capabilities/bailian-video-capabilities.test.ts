@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { findBuiltinCapabilities } from '@/lib/model-capabilities/catalog'
+import { findBuiltinCapabilitiesSync } from '@/lib/model-capabilities/catalog'
 
 describe('bailian video capabilities catalog', () => {
   it('registers bailian i2v models as normal-mode only', () => {
@@ -11,14 +11,14 @@ describe('bailian video capabilities catalog', () => {
     ]
 
     for (const modelId of models) {
-      const capabilities = findBuiltinCapabilities('video', 'bailian', modelId)
+      const capabilities = findBuiltinCapabilitiesSync('video', 'bailian', modelId)
       expect(capabilities?.video?.generationModeOptions).toEqual(['normal'])
       expect(capabilities?.video?.firstlastframe).toBe(false)
     }
   })
 
   it('registers wan2.7 i2v as dual-mode', () => {
-    const capabilities = findBuiltinCapabilities('video', 'bailian', 'wan2.7-i2v')
+    const capabilities = findBuiltinCapabilitiesSync('video', 'bailian', 'wan2.7-i2v')
     expect(capabilities?.video?.generationModeOptions).toEqual(['normal', 'firstlastframe'])
     expect(capabilities?.video?.firstlastframe).toBe(true)
   })
@@ -30,7 +30,7 @@ describe('bailian video capabilities catalog', () => {
     ]
 
     for (const modelId of models) {
-      const capabilities = findBuiltinCapabilities('video', 'bailian', modelId)
+      const capabilities = findBuiltinCapabilitiesSync('video', 'bailian', modelId)
       expect(capabilities?.video?.generationModeOptions).toEqual(['firstlastframe'])
       expect(capabilities?.video?.firstlastframe).toBe(true)
     }

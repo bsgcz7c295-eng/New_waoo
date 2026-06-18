@@ -19,10 +19,12 @@ interface ComfyUIGenerateOptions extends GenerateOptions {
   workflowType?: WorkflowType
 }
 
+const DEFAULT_NEGATIVE_PROMPT = 'low quality, worst quality, blurry, distorted, deformed, bad anatomy, extra limbs, mutated hands, watermark, text, signature, logo, username'
+
 const DEFAULT_TXT2IMG_WORKFLOW: ComfyUIWorkflow = {
   '1': {
     class_type: 'CheckpointLoaderSimple',
-    inputs: { ckpt_name: 'SDXL\\animosity_illustriousV11.safetensors' },
+    inputs: { ckpt_name: 'SDXL\\majicmixRealistic_v7.safetensors' },
   },
   '2': {
     class_type: 'CLIPTextEncode',
@@ -30,7 +32,7 @@ const DEFAULT_TXT2IMG_WORKFLOW: ComfyUIWorkflow = {
   },
   '3': {
     class_type: 'CLIPTextEncode',
-    inputs: { text: 'low quality, blurry, distorted, watermark, text', clip: ['1', 1] },
+    inputs: { text: DEFAULT_NEGATIVE_PROMPT, clip: ['1', 1] },
   },
   '4': {
     class_type: 'EmptyLatentImage',
@@ -61,7 +63,7 @@ const DEFAULT_IMG2IMG_WORKFLOW: ComfyUIWorkflow = {
   },
   '2': {
     class_type: 'CheckpointLoaderSimple',
-    inputs: { ckpt_name: 'SDXL\\animosity_illustriousV11.safetensors' },
+    inputs: { ckpt_name: 'SDXL\\majicmixRealistic_v7.safetensors' },
   },
   '3': {
     class_type: 'CLIPTextEncode',
@@ -69,7 +71,7 @@ const DEFAULT_IMG2IMG_WORKFLOW: ComfyUIWorkflow = {
   },
   '4': {
     class_type: 'CLIPTextEncode',
-    inputs: { text: 'low quality, blurry, distorted', clip: ['2', 1] },
+    inputs: { text: DEFAULT_NEGATIVE_PROMPT, clip: ['2', 1] },
   },
   '5': {
     class_type: 'VAEEncode',
@@ -108,7 +110,7 @@ const DEFAULT_MULTIREF_WORKFLOW: ComfyUIWorkflow = {
   },
   '4': {
     class_type: 'CheckpointLoaderSimple',
-    inputs: { ckpt_name: 'SDXL\\animosity_illustriousV11.safetensors' },
+    inputs: { ckpt_name: 'SDXL\\majicmixRealistic_v7.safetensors' },
   },
   '5': {
     class_type: 'CLIPTextEncode',
@@ -116,7 +118,7 @@ const DEFAULT_MULTIREF_WORKFLOW: ComfyUIWorkflow = {
   },
   '6': {
     class_type: 'CLIPTextEncode',
-    inputs: { text: 'low quality, blurry, distorted', clip: ['4', 1] },
+    inputs: { text: DEFAULT_NEGATIVE_PROMPT, clip: ['4', 1] },
   },
   '7': {
     class_type: 'IPAdapterAdvanced',
@@ -142,7 +144,7 @@ const DEFAULT_MULTIREF_WORKFLOW: ComfyUIWorkflow = {
   },
   '10': {
     class_type: 'IPAdapterModelLoader',
-    inputs: { ipadapter_file: 'ip-adapter-plus_sd15.safetensors' },
+    inputs: { ipadapter_file: 'ip-adapter-plus_sdxl_vit-h.safetensors' },
   },
   '11': {
     class_type: 'CLIPVisionLoader',
@@ -160,10 +162,9 @@ const DEFAULT_MULTIREF_WORKFLOW: ComfyUIWorkflow = {
 
 function resolveDefaultWorkflow(type: WorkflowType): ComfyUIWorkflow {
   switch (type) {
-    case 'img2img': return JSON.parse(JSON.stringify(DEFAULT_IMG2IMG_WORKFLOW))
-    case 'multi-ref': return JSON.parse(JSON.stringify(DEFAULT_MULTIREF_WORKFLOW))
-    case 'txt2img':
-    default: return JSON.parse(JSON.stringify(DEFAULT_TXT2IMG_WORKFLOW))
+    case 'img2img': return structuredClone(DEFAULT_IMG2IMG_WORKFLOW)
+    case 'multi-ref': return structuredClone(DEFAULT_MULTIREF_WORKFLOW)
+    default: return structuredClone(DEFAULT_TXT2IMG_WORKFLOW)
   }
 }
 
@@ -319,7 +320,7 @@ export class ComfyuiImageGenerator extends BaseImageGenerator {
     if (userWorkflow) {
       baseWorkflow = userWorkflow
     } else if (workflowId) {
-      const saved = loadWorkflow(workflowId)
+      const saved = await loadWorkflow(workflowId)
       if (saved) {
         baseWorkflow = saved.workflow
         logger.info({
@@ -331,7 +332,7 @@ export class ComfyuiImageGenerator extends BaseImageGenerator {
         baseWorkflow = resolveDefaultWorkflow(detectedType)
       }
     } else if (this.modelId) {
-      const saved = loadWorkflow(this.modelId)
+      const saved = await loadWorkflow(this.modelId)
       if (saved) {
         baseWorkflow = saved.workflow
         logger.info({

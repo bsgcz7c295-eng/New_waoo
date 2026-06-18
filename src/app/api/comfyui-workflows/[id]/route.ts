@@ -11,7 +11,7 @@ export const GET = apiHandler(async (
   if (isErrorResponse(authResult)) return authResult
 
   const { id } = await params
-  const workflow = loadWorkflow(id)
+  const workflow = await loadWorkflow(id)
 
   if (!workflow) {
     return NextResponse.json({ error: 'Workflow not found' }, { status: 404 })

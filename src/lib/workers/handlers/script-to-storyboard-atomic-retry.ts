@@ -1,3 +1,4 @@
+import { fillTemplate } from '@/lib/prompt-i18n'
 import { buildCharactersIntroduction } from '@/lib/constants'
 import type {
   ScriptToStoryboardPromptTemplates,
@@ -294,20 +295,20 @@ export async function runScriptToStoryboardAtomicRetry(params: {
       null,
       2,
     )
-    let phase1Prompt = params.promptTemplates.phase1PlanTemplate
-      .replace('{characters_lib_name}', charactersLibName)
-      .replace('{locations_lib_name}', locationsLibName)
-      .replace('{characters_introduction}', charactersIntroduction)
-      .replace('{characters_appearance_list}', filteredAppearanceList)
-      .replace('{characters_full_description}', filteredFullDescription)
-      .replace('{props_description}', filteredPropsDescription)
-      .replace('{clip_json}', clipJson)
     const screenplay = parseScreenplay(params.clip.screenplay)
-    if (screenplay) {
-      phase1Prompt = phase1Prompt.replace('{clip_content}', `【剧本格式】\n${JSON.stringify(screenplay, null, 2)}`)
-    } else {
-      phase1Prompt = phase1Prompt.replace('{clip_content}', clipContent)
-    }
+    const phase1ClipContent = screenplay
+      ? `【剧本格式】\n${JSON.stringify(screenplay, null, 2)}`
+      : clipContent
+    const phase1Prompt = fillTemplate(params.promptTemplates.phase1PlanTemplate, {
+      characters_lib_name: charactersLibName,
+      locations_lib_name: locationsLibName,
+      characters_introduction: charactersIntroduction,
+      characters_appearance_list: filteredAppearanceList,
+      characters_full_description: filteredFullDescription,
+      props_description: filteredPropsDescription,
+      clip_json: clipJson,
+      clip_content: phase1ClipContent,
+    })
     phase1Panels = await runStepWithRetrySimple({
       runStep: params.runStep,
       baseMeta,
@@ -326,12 +327,13 @@ export async function runScriptToStoryboardAtomicRetry(params: {
     phase1PanelsByClipId[params.clip.id] = phase1Panels
   } else if (params.retryTarget.phase === 'phase2_cinematography') {
     const planPanels = requireRows(phase1Panels, 'storyboard.clip.phase1')
-    const phase2Prompt = params.promptTemplates.phase2CinematographyTemplate
-      .replace('{panels_json}', JSON.stringify(planPanels, null, 2))
-      .replace(/\{panel_count\}/g, String(planPanels.length))
-      .replace('{locations_description}', filteredLocationsDescription)
-      .replace('{characters_info}', filteredFullDescription)
-      .replace('{props_description}', filteredPropsDescription)
+    const phase2Prompt = fillTemplate(params.promptTemplates.phase2CinematographyTemplate, {
+      panels_json: JSON.stringify(planPanels, null, 2),
+      panel_count: String(planPanels.length),
+      locations_description: filteredLocationsDescription,
+      characters_info: filteredFullDescription,
+      props_description: filteredPropsDescription,
+    })
     phase2Cinematography = await runStepWithRetrySimple({
       runStep: params.runStep,
       baseMeta,
@@ -344,10 +346,11 @@ export async function runScriptToStoryboardAtomicRetry(params: {
     phase2CinematographyByClipId[params.clip.id] = phase2Cinematography
   } else if (params.retryTarget.phase === 'phase2_acting') {
     const planPanels = requireRows(phase1Panels, 'storyboard.clip.phase1')
-    const phase2ActingPrompt = params.promptTemplates.phase2ActingTemplate
-      .replace('{panels_json}', JSON.stringify(planPanels, null, 2))
-      .replace(/\{panel_count\}/g, String(planPanels.length))
-      .replace('{characters_info}', filteredFullDescription)
+    const phase2ActingPrompt = fillTemplate(params.promptTemplates.phase2ActingTemplate, {
+      panels_json: JSON.stringify(planPanels, null, 2),
+      panel_count: String(planPanels.length),
+      characters_info: filteredFullDescription,
+    })
     phase2Acting = await runStepWithRetrySimple({
       runStep: params.runStep,
       baseMeta,
@@ -360,11 +363,12 @@ export async function runScriptToStoryboardAtomicRetry(params: {
     phase2ActingByClipId[params.clip.id] = phase2Acting
   } else {
     const planPanels = requireRows(phase1Panels, 'storyboard.clip.phase1')
-    const phase3Prompt = params.promptTemplates.phase3DetailTemplate
-      .replace('{panels_json}', JSON.stringify(planPanels, null, 2))
-      .replace('{characters_age_gender}', filteredFullDescription)
-      .replace('{locations_description}', filteredLocationsDescription)
-      .replace('{props_description}', filteredPropsDescription)
+    const phase3Prompt = fillTemplate(params.promptTemplates.phase3DetailTemplate, {
+      panels_json: JSON.stringify(planPanels, null, 2),
+      characters_age_gender: filteredFullDescription,
+      locations_description: filteredLocationsDescription,
+      props_description: filteredPropsDescription,
+    })
     phase3Panels = await runStepWithRetrySimple({
       runStep: params.runStep,
       baseMeta,
