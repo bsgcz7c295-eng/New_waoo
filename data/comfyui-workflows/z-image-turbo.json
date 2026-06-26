@@ -1,8 +1,8 @@
 {
   "id": "z-image-turbo",
-  "name": "Z-Image Turbo",
+  "name": "z-image-turbo",
   "type": "txt2img",
-  "typeLabel": "Text to Image",
+  "typeLabel": "文生图",
   "workflow": {
     "9": {
       "inputs": {
@@ -32,7 +32,7 @@
     "57:30": {
       "inputs": {
         "clip_name": "Qwen\\qwen_3_4b.safetensors",
-        "type": "lumina2",
+        "type": "qwen_image",
         "device": "default"
       },
       "class_type": "CLIPLoader",
@@ -47,18 +47,6 @@
       "class_type": "VAELoader",
       "_meta": {
         "title": "加载VAE"
-      }
-    },
-    "57:33": {
-      "inputs": {
-        "conditioning": [
-          "57:27",
-          0
-        ]
-      },
-      "class_type": "ConditioningZeroOut",
-      "_meta": {
-        "title": "条件零化"
       }
     },
     "57:8": {
@@ -89,7 +77,7 @@
     },
     "57:27": {
       "inputs": {
-        "text": "A 25-year-old Chinese man, slender build, clean but slightly tired face, neat short black hair, expressive eyes showing a mix of fatigue and hidden determination, subtle stubble on chin, high-end Donghua style, hyper-detailed facial features.",
+        "text": "",
         "clip": [
           "57:30",
           0
@@ -97,7 +85,7 @@
       },
       "class_type": "CLIPTextEncode",
       "_meta": {
-        "title": "CLIP文本编码"
+        "title": "正面提示词"
       }
     },
     "57:13": {
@@ -126,11 +114,11 @@
     },
     "57:3": {
       "inputs": {
-        "seed": 109807468405610,
+        "seed": 3005235860,
         "steps": 8,
         "cfg": 1,
         "sampler_name": "euler",
-        "scheduler": "beta",
+        "scheduler": "simple",
         "denoise": 1,
         "model": [
           "57:11",
@@ -141,7 +129,7 @@
           0
         ],
         "negative": [
-          "57:33",
+          "57:95",
           0
         ],
         "latent_image": [
@@ -167,8 +155,21 @@
       "_meta": {
         "title": "LoRA加载器（仅模型）"
       }
+    },
+    "57:95": {
+      "inputs": {
+        "text": "",
+        "clip": [
+          "57:30",
+          0
+        ]
+      },
+      "class_type": "CLIPTextEncode",
+      "_meta": {
+        "title": "负面提示词"
+      }
     }
   },
-  "createdAt": "2026-06-15T11:08:01.486Z",
-  "updatedAt": "2026-06-15T11:08:01.486Z"
+  "createdAt": "2026-06-16T13:09:11.179Z",
+  "updatedAt": "2026-06-16T13:09:11.179Z"
 }

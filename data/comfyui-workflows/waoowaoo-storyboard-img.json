@@ -1,0 +1,130 @@
+{
+  "id": "waoowaoo-storyboard-img",
+  "name": "waoowaoo 分镜图片生成",
+  "type": "txt2img",
+  "typeLabel": "文生图",
+  "workflow": {
+    "1": {
+      "inputs": {
+        "unet_name": "Z-Image\\z_image_turbo_bf16.safetensors",
+        "weight_dtype": "default"
+      },
+      "class_type": "UNETLoader",
+      "_meta": {
+        "title": "UNet加载器"
+      }
+    },
+    "2": {
+      "inputs": {
+        "vae_name": "Z-image\\ae_zimgturbo.safetensors"
+      },
+      "class_type": "VAELoader",
+      "_meta": {
+        "title": "加载VAE"
+      }
+    },
+    "3": {
+      "inputs": {
+        "clip_name": "Qwen\\qwen_3_4b.safetensors",
+        "type": "qwen_image",
+        "device": "default"
+      },
+      "class_type": "CLIPLoader",
+      "_meta": {
+        "title": "加载CLIP"
+      }
+    },
+    "4": {
+      "inputs": {
+        "lora_name": "Z-Image\\new_mecha_zit_V2.safetensors",
+        "strength_model": 1,
+        "model": ["1", 0]
+      },
+      "class_type": "LoraLoaderModelOnly",
+      "_meta": {
+        "title": "LoRA加载器（仅模型）"
+      }
+    },
+    "5": {
+      "inputs": {
+        "text": "",
+        "clip": ["3", 0]
+      },
+      "class_type": "CLIPTextEncode",
+      "_meta": {
+        "title": "正面提示词"
+      }
+    },
+    "6": {
+      "inputs": {
+        "text": "LOGO, 水印, 字幕, 中文字幕, 文字, subtitles, watermark, text, signature, copyright, blurry, out of focus, overexposed, underexposed, low contrast, washed out colors, excessive noise, grainy texture, poor lighting, flickering, motion blur, distorted proportions, unnatural skin tones, deformed facial features, asymmetrical face, missing facial features, extra limbs, disfigured hands, wrong hand count, extra fingers, mutated hands, poorly drawn hands, poorly drawn face, fused fingers, too many fingers, long neck, missing arms, missing legs, extra arms, extra legs, malformed limbs, bad anatomy, bad proportions, cloned face, disfigured, gross proportions, deformed, ugly, duplicate, morbid, mutilated, out of frame, artifacts around text, unreadable text on clothing, inconsistent perspective, camera shake, flat lighting, AI artifacts",
+        "clip": ["3", 0]
+      },
+      "class_type": "CLIPTextEncode",
+      "_meta": {
+        "title": "负面提示词"
+      }
+    },
+    "7": {
+      "inputs": {
+        "width": 1344,
+        "height": 768,
+        "batch_size": 1
+      },
+      "class_type": "EmptySD3LatentImage",
+      "_meta": {
+        "title": "空Latent图像（SD3）"
+      }
+    },
+    "8": {
+      "inputs": {
+        "shift": 3,
+        "model": ["4", 0]
+      },
+      "class_type": "ModelSamplingAuraFlow",
+      "_meta": {
+        "title": "采样算法（AuraFlow）"
+      }
+    },
+    "9": {
+      "inputs": {
+        "seed": 0,
+        "steps": 8,
+        "cfg": 1,
+        "sampler_name": "euler",
+        "scheduler": "simple",
+        "denoise": 1,
+        "model": ["8", 0],
+        "positive": ["5", 0],
+        "negative": ["6", 0],
+        "latent_image": ["7", 0]
+      },
+      "class_type": "KSampler",
+      "_meta": {
+        "title": "K采样器"
+      }
+    },
+    "10": {
+      "inputs": {
+        "samples": ["9", 0],
+        "vae": ["2", 0]
+      },
+      "class_type": "VAEDecode",
+      "_meta": {
+        "title": "VAE解码"
+      }
+    },
+    "11": {
+      "inputs": {
+        "filename_prefix": "waoowaoo_storyboard",
+        "images": ["10", 0]
+      },
+      "class_type": "SaveImage",
+      "_meta": {
+        "title": "保存图像"
+      }
+    }
+  },
+  "createdAt": "2026-06-17T00:00:00.000Z",
+  "updatedAt": "2026-06-17T00:00:00.000Z"
+}
