@@ -4,6 +4,50 @@ All notable changes to this project will be documented in this file.
 
 ---
 
+## [v1.2] - 2026-07-02
+
+### ✨ 新功能
+- **新增 Agnes AI 服务商支持**
+  - 文本模型：Agnes 2.0 Flash（512K 上下文，支持图像理解）
+  - 图像模型：Agnes Image 2.0 Flash、Agnes Image 2.1 Flash（文生图、图生图、多图合成）
+  - 视频模型：Agnes Video V2.0（文生视频、图生视频、关键帧动画）
+- **新增 MiMo 服务商支持**
+  - 文本模型：MiMo-V2.5-Pro、MiMo-V2.5、MiMo-V2-Pro、MiMo-V2-Omni、MiMo-V2-Flash
+  - 音频模型：MiMo-V2.5-TTS、MiMo-V2-TTS、MiMo-V2.5-ASR
+- **新增文件导入功能**：编辑剧集页支持导入 txt、Word (.docx)、json 格式文件
+- **新增文件导入工具**：`src/lib/file-import.ts` 支持多种格式解析
+
+### 🔧 优化
+- **智能分集标记匹配改进**
+  - 添加子字符串回退匹配机制（当完整标记无法匹配时尝试匹配后半部分）
+  - 支持截断标记处理（包含 `...` 或 `…` 的标记）
+  - 降低模糊匹配阈值从 0.9 到 0.75
+  - 增加候选位置数量从 240 到 480
+  - 使用更短的锚点（3 个字符）提高匹配成功率
+  - 降低最小匹配长度从 8 到 6 个字符
+- **分集提示词改进**：增强标记生成规则，要求 AI 精确复制原文
+- **增加重试次数**：从 2 次增加到 4 次
+
+### 🐛 修复
+- **修复 Agnes AI 图像生成**
+  - 将 `response_format` 放入 `extra_body`（Agnes AI API 要求）
+  - 修复图生图时使用 `images.generate` 而非 `images.edit` 端点
+  - 将参考图片放入 `extra_body.image`
+- **修复资产库图片生成错误**
+  - 添加 `agnesai` 到图像生成器工厂
+  - 添加 `agnesai` 到视频生成器工厂
+- **修复分镜生成错误**
+  - 修复 `500 aiimage_edit() missing 1 required positional argument: 'image'` 错误
+- **修复智能分集错误**
+  - 改进错误消息，包含标记的前 30 个字符便于调试
+  - 添加更详细的日志记录
+
+### 📝 文档
+- 更新 README 添加 Agnes AI 和 MiMo 服务商说明
+- 更新 CHANGELOG 添加 v1.2 版本说明
+
+---
+
 ## [v1.1] - 2026-06-18
 
 ### ✨ 新功能
