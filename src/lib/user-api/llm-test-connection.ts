@@ -8,6 +8,8 @@ type SupportedProvider =
   | 'openai'
   | 'bailian'
   | 'siliconflow'
+  | 'agnesai'
+  | 'mimo'
   | 'openai-compatible'
   | 'gemini-compatible'
   | 'custom'
@@ -43,6 +45,8 @@ function normalizeProvider(payload: TestConnectionPayload): SupportedProvider {
     case 'gemini-compatible':
     case 'bailian':
     case 'siliconflow':
+    case 'agnesai':
+    case 'mimo':
     case 'custom':
       return provider
     default:
@@ -197,6 +201,22 @@ export async function testLlmConnection(payload: TestConnectionPayload): Promise
     case 'siliconflow': {
       const tested = await testSiliconFlowProbe(apiKey)
       return { provider, message: 'siliconflow 连接成功', ...tested }
+    }
+    case 'agnesai': {
+      const tested = await testOpenAICompatibleConnection({
+        apiKey,
+        baseURL: 'https://apihub.agnes-ai.com/v1',
+        model: requestedModel || undefined,
+      })
+      return { provider, message: 'agnesai 连接成功', ...tested }
+    }
+    case 'mimo': {
+      const tested = await testOpenAICompatibleConnection({
+        apiKey,
+        baseURL: 'https://api.xiaomimimo.com/v1',
+        model: requestedModel || undefined,
+      })
+      return { provider, message: 'mimo 连接成功', ...tested }
     }
     case 'openai-compatible': {
       const tested = await testOpenAICompatibleConnection({

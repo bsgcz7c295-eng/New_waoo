@@ -19,6 +19,7 @@ import { DEFAULT_STYLE_PRESET_VALUE, STYLE_PRESETS } from '@/lib/style-presets'
 import { PROJECT_STORY_INPUT_MIN_ROWS } from '@/lib/ui/textarea-height'
 import { apiFetch } from '@/lib/api-fetch'
 import { expandHomeStory } from '@/lib/home/ai-story-expand'
+import { importFile, ACCEPTED_EXTENSIONS } from '@/lib/file-import'
 
 /** 触发智能分集建议的字数阈值 */
 const LONG_TEXT_THRESHOLD = 1000
@@ -76,6 +77,8 @@ export default function NovelInputStage({
   const [stylePresetValue, setStylePresetValue] = useState<string>(DEFAULT_STYLE_PRESET_VALUE)
   const [aiWriteOpen, setAiWriteOpen] = useState(false)
   const [aiWriteLoading, setAiWriteLoading] = useState(false)
+  const [isImporting, setIsImporting] = useState(false)
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   // 当父组件的 novelText 变化（非本地编辑触发）时，同步到本地 state
   useEffect(() => {
@@ -126,6 +129,31 @@ export default function NovelInputStage({
       setAiWriteLoading(false)
     }
   }, [aiWriteLoading, onNovelTextChange])
+
+  const handleFileImport = useCallback(async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    if (!file) return
+
+    setIsImporting(true)
+    try {
+      const result = await importFile(file)
+      if (result.success && result.content) {
+        setLocalText(result.content)
+        onNovelTextChange(result.content)
+      } else if (result.error) {
+        window.alert(result.error)
+      }
+    } catch (error) {
+      const message = error instanceof Error ? error.message : '导入失败'
+      window.alert(message)
+    } finally {
+      setIsImporting(false)
+      // 清空 input 以允许重复选择同一文件
+      if (fileInputRef.current) {
+        fileInputRef.current.value = ''
+      }
+    }
+  }, [onNovelTextChange])
 
   // 下拉中使用的简短标签（低信息密度）
   const ratioUsageTagMap: Record<string, string> = {
@@ -216,23 +244,44 @@ export default function NovelInputStage({
             </button>
           )}
           secondaryActions={(
-            <button
-              onClick={() => setAiWriteOpen(true)}
-              disabled={isSubmittingTask || isSwitchingStage}
-              className="glass-btn-base flex h-10 flex-shrink-0 items-center gap-1.5 border border-[var(--glass-stroke-strong)] px-3 text-sm transition-all hover:border-[var(--glass-tone-info-fg)]/40"
-            >
-              <AppIcon name="sparkles" className="w-4 h-4 text-[#7c3aed]" />
-              <span
-                className="font-medium"
-                style={{
-                  background: 'linear-gradient(135deg, #3b82f6, #7c3aed)',
-                  WebkitBackgroundClip: 'text',
-                  WebkitTextFillColor: 'transparent',
-                }}
+            <>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept={ACCEPTED_EXTENSIONS}
+                onChange={handleFileImport}
+                className="hidden"
+              />
+              <button
+                onClick={() => fileInputRef.current?.click()}
+                disabled={isSubmittingTask || isSwitchingStage || isImporting}
+                className="glass-btn-base flex h-10 flex-shrink-0 items-center gap-1.5 border border-[var(--glass-stroke-strong)] px-3 text-sm transition-all hover:border-[var(--glass-tone-info-fg)]/40"
               >
-                {homeT('aiWrite.trigger')}
-              </span>
-            </button>
+                {isImporting ? (
+                  <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                ) : (
+                  <AppIcon name="upload" className="w-4 h-4" />
+                )}
+                <span className="font-medium">{t('storyInput.importFile')}</span>
+              </button>
+              <button
+                onClick={() => setAiWriteOpen(true)}
+                disabled={isSubmittingTask || isSwitchingStage}
+                className="glass-btn-base flex h-10 flex-shrink-0 items-center gap-1.5 border border-[var(--glass-stroke-strong)] px-3 text-sm transition-all hover:border-[var(--glass-tone-info-fg)]/40"
+              >
+                <AppIcon name="sparkles" className="w-4 h-4 text-[#7c3aed]" />
+                <span
+                  className="font-medium"
+                  style={{
+                    background: 'linear-gradient(135deg, #3b82f6, #7c3aed)',
+                    WebkitBackgroundClip: 'text',
+                    WebkitTextFillColor: 'transparent',
+                  }}
+                >
+                  {homeT('aiWrite.trigger')}
+                </span>
+              </button>
+            </>
           )}
         />
       </div>

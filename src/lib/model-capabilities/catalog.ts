@@ -1,3 +1,4 @@
+import { readdirSync, readFileSync } from 'node:fs'
 import { readdir, readFile, stat } from 'node:fs/promises'
 import path from 'node:path'
 import {
@@ -234,13 +235,11 @@ function ensureSyncCache(): CatalogCache {
   let files: string[] = []
   try {
     // Use sync fs for the sync wrapper path
-    const fsSync = require('node:fs')
-    const pathSync = require('node:path')
-    const catDir = pathSync.resolve(process.cwd(), 'standards/capabilities')
-    const dirents = fsSync.readdirSync(catDir, { withFileTypes: true })
+    const catDir = path.resolve(process.cwd(), 'standards/capabilities')
+    const dirents = readdirSync(catDir, { withFileTypes: true })
     files = dirents
       .filter((e: { isFile: () => boolean; name: string }) => e.isFile() && e.name.endsWith('.json'))
-      .map((e: { name: string }) => pathSync.join(catDir, e.name))
+      .map((e: { name: string }) => path.join(catDir, e.name))
       .sort((a: string, b: string) => a.localeCompare(b))
   } catch {
     throw new Error('CATALOG_DIR_MISSING: standards/capabilities directory not found')
@@ -249,7 +248,7 @@ function ensureSyncCache(): CatalogCache {
     throw new Error('CATALOG_MISSING: no json files in standards/capabilities')
   }
   for (const filePath of files) {
-    const raw = require('node:fs').readFileSync(filePath, 'utf8')
+    const raw = readFileSync(filePath, 'utf8')
     const parsed = JSON.parse(raw) as unknown
     if (!Array.isArray(parsed)) continue
     for (let i = 0; i < parsed.length; i++) {

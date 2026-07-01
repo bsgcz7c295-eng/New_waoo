@@ -35,8 +35,8 @@ type ApproximateNormMatch = {
   confidence: number
 }
 
-const APPROX_CONFIDENCE_THRESHOLD = 0.9
-const APPROX_MAX_CANDIDATES = 240
+const APPROX_CONFIDENCE_THRESHOLD = 0.75
+const APPROX_MAX_CANDIDATES = 480
 
 const PUNCTUATION_MAP: Record<string, string> = {
   '，': ',',
@@ -229,7 +229,8 @@ function collectApproximateStarts(haystack: string, query: string, fromNorm: num
   const maxCandidates = APPROX_MAX_CANDIDATES
   const candidates = new Set<number>()
   const queryLength = query.length
-  const anchorLength = Math.min(4, queryLength)
+  // 使用更短的锚点以提高匹配成功率
+  const anchorLength = Math.min(3, queryLength)
   const midOffset = Math.max(0, Math.floor((queryLength - anchorLength) / 2))
   const endOffset = Math.max(0, queryLength - anchorLength)
   const anchors: Array<{ text: string; offset: number }> = [
@@ -317,7 +318,7 @@ function findApproximateMatch(
   query: string,
   fromIndex: number,
 ): ApproximateNormMatch | null {
-  if (query.length < 8) return null
+  if (query.length < 6) return null
   const fromNorm = findNormIndexForRaw(normalized, fromIndex)
   const starts = collectApproximateStarts(normalized.text, query, fromNorm)
   const lengthCandidates = buildLengthCandidates(query.length)
@@ -399,6 +400,7 @@ export function createTextMarkerMatcher(content: string): TextMarkerMatcher {
       const marker = markerText.trim()
       if (!marker) return null
 
+      // 标准匹配流程
       const l1 = tryExactRawMarkerMatch(content, marker, fromIndex)
       if (l1) return l1
 
@@ -410,6 +412,58 @@ export function createTextMarkerMatcher(content: string): TextMarkerMatcher {
 
       const l3 = tryApproximateNormalizedMarkerMatch(normalized, normalizedMarker, fromIndex)
       if (l3) return l3
+
+      // 回退策略1：处理截断标记（包含 ... 的标记）
+      if (marker.includes('...') || marker.includes('…')) {
+        // 截取 ... 之前的部分进行匹配
+        const truncIdx = marker.indexOf('...')
+        const truncIdx2 = marker.indexOf('…')
+        const cutAt = truncIdx >= 0
+          ? (truncIdx2 >= 0 ? Math.min(truncIdx, truncIdx2) : truncIdx)
+          : truncIdx2
+        const beforeTrunc = marker.slice(0, cutAt).trim()
+        if (beforeTrunc.length >= 6) {
+          const truncNorm = normalizeQuery(beforeTrunc)
+          if (truncNorm) {
+            const l2Trunc = tryExactNormalizedMarkerMatch(normalized, truncNorm, fromIndex)
+            if (l2Trunc) return l2Trunc
+            const l3Trunc = tryApproximateNormalizedMarkerMatch(normalized, truncNorm, fromIndex)
+            if (l3Trunc) return l3Trunc
+          }
+        }
+      }
+
+      // 回退策略2：尝试匹配标记的子字符串
+      const minSubLength = 6
+      if (marker.length > minSubLength) {
+        // 从标记的后半部分开始
+        const midStart = Math.floor(marker.length / 2)
+        for (let len = marker.length - midStart; len >= minSubLength; len -= 2) {
+          const subMarker = marker.slice(-len)
+          const subNormalized = normalizeQuery(subMarker)
+          if (!subNormalized) continue
+
+          const subL2 = tryExactNormalizedMarkerMatch(normalized, subNormalized, fromIndex)
+          if (subL2) {
+            return {
+              startIndex: Math.max(subL2.startIndex - (marker.length - len), fromIndex),
+              endIndex: subL2.endIndex,
+              level: 'L2',
+              confidence: 0.85,
+            }
+          }
+
+          const subL3 = tryApproximateNormalizedMarkerMatch(normalized, subNormalized, fromIndex)
+          if (subL3) {
+            return {
+              startIndex: Math.max(subL3.startIndex - (marker.length - len), fromIndex),
+              endIndex: subL3.endIndex,
+              level: 'L3',
+              confidence: subL3.confidence * 0.9,
+            }
+          }
+        }
+      }
 
       return null
     },

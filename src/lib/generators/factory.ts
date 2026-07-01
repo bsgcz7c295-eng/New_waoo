@@ -70,6 +70,8 @@ export function createImageGenerator(provider: string, modelId?: string): ImageG
             return new SiliconFlowImageGenerator()
         case 'comfyui':
             return new ComfyuiImageGenerator(actualModelId)
+        case 'agnesai':
+            return new OpenAICompatibleImageGenerator(actualModelId, provider)
         default:
             throw new Error(`Unknown image generator provider: ${provider}`)
     }
@@ -99,6 +101,8 @@ export function createVideoGenerator(provider: string): VideoGenerator {
             return new BailianVideoGenerator()
         case 'siliconflow':
             return new SiliconFlowVideoGenerator()
+        case 'agnesai':
+            return new OpenAICompatibleVideoGenerator(provider)
         default:
             throw new Error(`Unknown video generator provider: ${provider}`)
     }

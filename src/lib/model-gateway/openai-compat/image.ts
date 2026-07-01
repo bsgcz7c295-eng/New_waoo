@@ -29,6 +29,8 @@ const OPENAI_IMAGE_OPTION_KEYS = new Set([
   'quality',
   'responseFormat',
   'outputFormat',
+  'aspectRatio',
+  'keepOriginalAspectRatio',
 ])
 
 function assertAllowedOptions(options: Record<string, unknown>) {
@@ -90,10 +92,30 @@ function normalizeOpenAIImageSize(value: string | undefined): OpenAIImageGenerat
 function resolveRawSize(options: Record<string, unknown>): string | undefined {
   const size = readStringOption(options.size, 'size')
   const resolution = readStringOption(options.resolution, 'resolution')
+  const aspectRatio = readStringOption(options.aspectRatio, 'aspectRatio')
+
   if (size && resolution && size !== resolution) {
     throw new Error('OPENAI_COMPAT_IMAGE_OPTION_CONFLICT: size and resolution must match')
   }
-  return size || resolution
+
+  // 优先使用 size，其次 resolution，最后从 aspectRatio 转换
+  if (size) return size
+  if (resolution) return resolution
+
+  // 将 aspectRatio 转换为 OpenAI 支持的 size
+  if (aspectRatio) {
+    const ratioMap: Record<string, string> = {
+      '1:1': '1024x1024',
+      '16:9': '1792x1024',
+      '9:16': '1024x1792',
+      '3:2': '1536x1024',
+      '2:3': '1024x1536',
+    }
+    const mapped = ratioMap[aspectRatio]
+    if (mapped) return mapped
+  }
+
+  return undefined
 }
 
 function resolveModelId(modelId: string | undefined, options: Record<string, unknown>): string {
@@ -170,7 +192,45 @@ export async function generateImageViaOpenAICompat(request: OpenAICompatImageReq
   const rawSize = resolveRawSize(options)
   const size = normalizeOpenAIImageSize(rawSize)
 
+  // 检查是否为 Agnes AI（response_format 需要放在 extra_body 中，且使用 generate 而非 edit）
+  const isAgnesAI = providerId?.toLowerCase().includes('agnesai')
+
   if (referenceImages.length > 0) {
+    if (isAgnesAI) {
+      // Agnes AI：图生图也使用 generate 端点，image 放在 extra_body 中
+      const response = await client.images.generate({
+        model: normalizedModelId,
+        prompt,
+        extra_body: {
+          image: referenceImages,
+          response_format: responseFormat,
+        },
+        ...(quality ? { quality } : {}),
+        ...(size ? { size } : {}),
+      } as unknown as Parameters<typeof client.images.generate>[0])
+
+      const imagePayload = readAllImagePayloads(response)
+      const imageBase64 = imagePayload.b64Json
+      if (typeof imageBase64 === 'string' && imageBase64.trim().length > 0) {
+        const mimeType = toMimeFromOutputFormat(outputFormat)
+        return {
+          success: true,
+          imageBase64,
+          imageUrl: `data:${mimeType};base64,${imageBase64}`,
+        }
+      }
+      const imageUrl = imagePayload.url
+      if (typeof imageUrl === 'string' && imageUrl.trim().length > 0) {
+        return {
+          success: true,
+          imageUrl,
+          ...(imagePayload.urls.length > 1 ? { imageUrls: imagePayload.urls } : {}),
+        }
+      }
+      throw new Error('OPENAI_COMPAT_IMAGE_EMPTY_RESPONSE: no image data returned')
+    }
+
+    // 其他提供商：使用 edit 端点
     const response = await client.images.edit({
       model: normalizedModelId,
       prompt,
@@ -202,11 +262,20 @@ export async function generateImageViaOpenAICompat(request: OpenAICompatImageReq
     throw new Error('OPENAI_COMPAT_IMAGE_EMPTY_RESPONSE: no image data returned')
   }
 
+  // 文生图：Agnes AI 需要将 response_format 放在 extra_body 中
   const response = await client.images.generate({
     model: normalizedModelId,
     prompt,
-    response_format: responseFormat,
-    ...(outputFormat ? { output_format: outputFormat } : {}),
+    ...(isAgnesAI
+      ? {
+          extra_body: {
+            response_format: responseFormat,
+          },
+        }
+      : {
+          response_format: responseFormat,
+          ...(outputFormat ? { output_format: outputFormat } : {}),
+        }),
     ...(quality ? { quality } : {}),
     ...(size ? { size } : {}),
   } as unknown as Parameters<typeof client.images.generate>[0])

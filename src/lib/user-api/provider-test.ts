@@ -20,6 +20,8 @@ export interface TestProviderResult {
 type PresetProviderType = 'ark' | 'google' | 'openrouter' | 'minimax' | 'fal' | 'vidu'
   | 'bailian'
   | 'siliconflow'
+  | 'agnesai'
+  | 'mimo'
   | 'comfyui'
 type CompatibleProviderType = 'openai-compatible' | 'gemini-compatible'
 
@@ -929,6 +931,10 @@ export async function testProviderConnection(payload: TestProviderPayload): Prom
       return testBailianProvider(apiKey)
     case 'siliconflow':
       return testSiliconFlowProvider(apiKey)
+    case 'agnesai':
+      return testCompatibleProvider('https://apihub.agnes-ai.com/v1', apiKey, llmModel)
+    case 'mimo':
+      return testCompatibleProvider('https://api.xiaomimimo.com/v1', apiKey, llmModel)
     case 'comfyui':
       return testComfyuiProvider(baseUrl || 'http://127.0.0.1:8188', apiKey)
     default:

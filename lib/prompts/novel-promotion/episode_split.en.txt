@@ -5,14 +5,29 @@ Input text:
 {CONTENT}
 
 Core rules:
-1. Keep episode lengths as balanced as possible.
+1. Keep episode lengths as balanced as possible (±20% deviation).
 2. Prefer natural breakpoints (chapter boundary, scene shift, time jump).
 3. Keep chronology and full coverage (no overlap, no missing text).
 4. Provide reliable startMarker and endMarker copied from source text.
 5. Return JSON only.
 6. ⚠️ JSON SAFETY: All quotation marks in text (""''「」 etc.) MUST be converted to corner brackets「」in JSON string values. NEVER use raw ASCII double quotes " inside string values.
 
-Output format:
+## ⚠️ Marker Generation Rules (Extremely Important)
+
+**startMarker and endMarker MUST be exact continuous text copied from the source!**
+
+### Requirements:
+1. **Exact Copy**: Markers must be characters copied exactly from the original text, with no modifications, deletions, or additions
+2. **Length Requirement**: Each marker must be at least 15 characters long, preferably 20 characters
+3. **Continuity**: Markers must be a continuous segment from the original text, no characters can be skipped
+4. **Verification**: After generating markers, you MUST search the original text to confirm the exact same text can be found
+
+### Examples:
+- ✅ Correct: If the original text is "The quick brown fox jumps over the lazy dog", the marker must be "The quick brown fox jumps over the lazy dog"
+- ❌ Wrong: Do not change "The quick brown fox jumps over the lazy dog" to "quick fox jumps" (deleted content)
+- ❌ Wrong: Do not change "The quick brown fox jumps over the lazy dog" to "The quick brown fox jumps over the lazy" (missing "dog")
+
+## Output format:
 {
   "analysis": {
     "totalWords": 0,
@@ -26,8 +41,8 @@ Output format:
       "title": "Episode title",
       "summary": "Short summary",
       "estimatedWords": 0,
-      "startMarker": "exact start marker",
-      "endMarker": "exact end marker",
+      "startMarker": "exact start marker (at least 15 characters)",
+      "endMarker": "exact end marker (at least 15 characters)",
       "startIndex": 0,
       "endIndex": 0
     }
@@ -39,3 +54,17 @@ Output format:
     "isBalanced": true
   }
 }
+
+## ⚠️ Final Verification Checklist (Must check before output)
+
+Before outputting, you must verify:
+1. ☐ episodes.length ≈ totalWords ÷ 650 (±1 episode error)
+2. ☐ All estimatedWords are within allowedRange
+3. ☐ maxWords - minWords ≤ 300 words
+4. ☐ No episode exceeds 850 words
+5. ☐ No episode is less than 400 words
+6. ☐ Previous episode's endMarker is adjacent to next episode's startMarker, no content missing
+7. ☐ endMarker does not contain any content from the next episode
+8. ☐ **Each startMarker and endMarker can be found in the original text with exactly the same characters**
+
+**If verification fails, you MUST readjust分割points until it passes!**

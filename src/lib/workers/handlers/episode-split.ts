@@ -7,7 +7,7 @@ import { withInternalLLMStreamCallbacks } from '@/lib/llm-observe/internal-strea
 import { reportTaskProgress } from '@/lib/workers/shared'
 import { assertTaskActive } from '@/lib/workers/utils'
 import { getUserModelConfig } from '@/lib/config-service'
-import { createTextMarkerMatcher } from '@/lib/novel-promotion/story-to-script/clip-matching'
+import { createTextMarkerMatcher, type TextMarkerMatch } from '@/lib/novel-promotion/story-to-script/clip-matching'
 import { createWorkerLLMStreamCallbacks, createWorkerLLMStreamContext } from './llm-stream'
 import type { TaskJobData } from '@/lib/task/types'
 import { buildPrompt, PROMPT_IDS } from '@/lib/prompt-i18n'
@@ -26,13 +26,14 @@ type SplitResponse = {
   episodes?: EpisodeSplit[]
 }
 
-const MAX_EPISODE_SPLIT_ATTEMPTS = 2
+const MAX_EPISODE_SPLIT_ATTEMPTS = 4
 const EPISODE_SPLIT_BOUNDARY_SUFFIX = `
 
 [Boundary Constraints]
 1. Each episode MUST include both startMarker and endMarker from the original text.
-2. Markers must be locatable in the original text; allow punctuation/whitespace differences only.
-3. If boundaries cannot be located reliably, return an empty episodes array.`
+2. Markers must be at least 15 characters long and be exact copies from the source text.
+3. Markers must be locatable in the original text; allow punctuation/whitespace differences only.
+4. If boundaries cannot be located reliably, return an empty episodes array.`
 
 function parseSplitResponse(aiResponse: string): SplitResponse {
   const parsed = safeParseJsonObject(aiResponse) as SplitResponse
@@ -190,26 +191,63 @@ export async function handleEpisodeSplitTask(job: Job<TaskJobData>) {
             throw new Error(`episode_${idx + 1} 必须同时提供 startMarker/endMarker`)
           }
 
+          let startMatchResult: TextMarkerMatch | null = null
+          let endMatchResult: TextMarkerMatch | null = null
+
           const startMatch = markerMatcher.matchMarker(startMarker, searchFrom)
           if (!startMatch) {
-            throw new Error(`episode_${idx + 1} startMarker 无法定位`)
+            // 尝试从 startMarker 的后半部分匹配（更可能是独特的部分）
+            const halfLen = Math.floor(startMarker.length / 2)
+            const fallbackMarker = startMarker.slice(-halfLen)
+            const fallbackMatch = markerMatcher.matchMarker(fallbackMarker, searchFrom)
+            if (fallbackMatch) {
+              // 找到匹配，扩展到完整的标记范围
+              const startPos = Math.max(fallbackMatch.startIndex - halfLen, searchFrom)
+              const endPos = fallbackMatch.endIndex
+              const episodeContent = content.slice(startPos, endPos).trim()
+              if (episodeContent) {
+                // 使用回退匹配结果
+                startMatchResult = { startIndex: startPos, endIndex: endPos, level: 'L3', confidence: 0.8 }
+              }
+            }
+            if (!startMatch && !startMatchResult) {
+              throw new Error(`episode_${idx + 1} startMarker 无法定位: "${startMarker.substring(0, 30)}..."`)
+            }
           }
-          const endMatch = markerMatcher.matchMarker(endMarker, startMatch.endIndex)
+          const startMatchFinal = startMatch || startMatchResult!
+          const endMatch = markerMatcher.matchMarker(endMarker, startMatchFinal.endIndex)
           if (!endMatch) {
-            throw new Error(`episode_${idx + 1} endMarker 无法定位`)
+            // 尝试从 endMarker 的后半部分匹配
+            const halfLen = Math.floor(endMarker.length / 2)
+            const fallbackMarker = endMarker.slice(-halfLen)
+            const fallbackMatch = markerMatcher.matchMarker(fallbackMarker, startMatchFinal.endIndex)
+            if (fallbackMatch) {
+              // 找到匹配，扩展到完整的标记范围
+              const startPos = Math.max(fallbackMatch.startIndex - halfLen, startMatchFinal.endIndex)
+              const endPos = fallbackMatch.endIndex
+              const episodeContent = content.slice(startPos, endPos).trim()
+              if (episodeContent) {
+                // 使用回退匹配结果
+                endMatchResult = { startIndex: startPos, endIndex: endPos, level: 'L3', confidence: 0.8 }
+              }
+            }
+            if (!endMatch && !endMatchResult) {
+              throw new Error(`episode_${idx + 1} endMarker 无法定位: "${endMarker.substring(0, 30)}..."`)
+            }
           }
+          const endMatchFinal = endMatch || endMatchResult!
 
           const rawStartIndex = toValidBoundaryIndex(ep.startIndex, content.length)
-          if (rawStartIndex !== null && Math.abs(rawStartIndex - startMatch.startIndex) > 200) {
+          if (rawStartIndex !== null && Math.abs(rawStartIndex - startMatchFinal.startIndex) > 200) {
             throw new Error(`episode_${idx + 1} startIndex 与 marker 偏差过大`)
           }
           const rawEndIndex = toValidBoundaryIndex(ep.endIndex, content.length)
-          if (rawEndIndex !== null && Math.abs(rawEndIndex - endMatch.endIndex) > 200) {
+          if (rawEndIndex !== null && Math.abs(rawEndIndex - endMatchFinal.endIndex) > 200) {
             throw new Error(`episode_${idx + 1} endIndex 与 marker 偏差过大`)
           }
 
-          const startPos = startMatch.startIndex
-          const endPos = endMatch.endIndex
+          const startPos = startMatchFinal.startIndex
+          const endPos = endMatchFinal.endIndex
           if (startPos < searchFrom || endPos <= startPos || endPos > content.length) {
             throw new Error(`episode_${idx + 1} 边界区间无效`)
           }

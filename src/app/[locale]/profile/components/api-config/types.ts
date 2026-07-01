@@ -118,6 +118,23 @@ export const PRESET_MODELS: PresetModel[] = [
     { modelId: 'MiniMax-M2.1', name: 'MiniMax M2.1', type: 'llm', provider: 'minimax' },
     { modelId: 'MiniMax-M2.1-highspeed', name: 'MiniMax M2.1 Highspeed', type: 'llm', provider: 'minimax' },
     { modelId: 'MiniMax-M2', name: 'MiniMax M2', type: 'llm', provider: 'minimax' },
+    // Agnes AI 文本模型
+    { modelId: 'agnes-2.0-flash', name: 'Agnes 2.0 Flash', type: 'llm', provider: 'agnesai' },
+    // Agnes AI 图像模型
+    { modelId: 'agnes-image-2.0-flash', name: 'Agnes Image 2.0 Flash', type: 'image', provider: 'agnesai' },
+    { modelId: 'agnes-image-2.1-flash', name: 'Agnes Image 2.1 Flash', type: 'image', provider: 'agnesai' },
+    // Agnes AI 视频模型
+    { modelId: 'agnes-video-v2.0', name: 'Agnes Video V2.0', type: 'video', provider: 'agnesai' },
+    // MiMo 文本模型（小米 MiMo 系列）
+    { modelId: 'MiMo-V2.5-Pro', name: 'MiMo-V2.5-Pro', type: 'llm', provider: 'mimo' },
+    { modelId: 'MiMo-V2.5', name: 'MiMo-V2.5', type: 'llm', provider: 'mimo' },
+    { modelId: 'MiMo-V2-Pro', name: 'MiMo-V2-Pro', type: 'llm', provider: 'mimo' },
+    { modelId: 'MiMo-V2-Omni', name: 'MiMo-V2-Omni', type: 'llm', provider: 'mimo' },
+    { modelId: 'MiMo-V2-Flash', name: 'MiMo-V2-Flash', type: 'llm', provider: 'mimo' },
+    // MiMo 音频模型（小米 MiMo TTS/ASR 系列）
+    { modelId: 'MiMo-V2.5-TTS', name: 'MiMo-V2.5-TTS', type: 'audio', provider: 'mimo' },
+    { modelId: 'MiMo-V2-TTS', name: 'MiMo-V2-TTS', type: 'audio', provider: 'mimo' },
+    { modelId: 'MiMo-V2.5-ASR', name: 'MiMo-V2.5-ASR', type: 'audio', provider: 'mimo' },
 
     // 图像模型
     { modelId: 'banana', name: 'Banana Pro', type: 'image', provider: 'fal' },
@@ -205,6 +222,8 @@ export const PRESET_PROVIDERS: Omit<Provider, 'apiKey' | 'hasApiKey'>[] = [
     { id: 'minimax', name: 'MiniMax Hailuo', baseUrl: 'https://api.minimaxi.com/v1' },
     { id: 'vidu', name: 'Vidu' },
     { id: 'fal', name: 'FAL' },
+    { id: 'agnesai', name: 'Agnes AI', baseUrl: 'https://apihub.agnes-ai.com/v1' },
+    { id: 'mimo', name: 'MiMo', baseUrl: 'https://api.xiaomimimo.com/v1' },
     { id: 'comfyui', name: 'ComfyUI Local' },
 ]
 
@@ -214,6 +233,8 @@ const ZH_PROVIDER_NAME_MAP: Record<string, string> = {
     vidu: '生数科技 Vidu',
     bailian: '阿里云百炼',
     siliconflow: '硅基流动',
+    agnesai: 'Agnes AI',
+    mimo: 'MiMo',
 }
 
 function isZhLocale(locale?: string): boolean {
@@ -388,6 +409,24 @@ export const PROVIDER_TUTORIALS: ProviderTutorial[] = [
             {
                 text: 'siliconflow_step1',
                 url: 'https://cloud.siliconflow.cn/account/ak'
+            }
+        ]
+    },
+    {
+        providerId: 'agnesai',
+        steps: [
+            {
+                text: 'agnesai_step1',
+                url: 'https://apihub.agnes-ai.com'
+            }
+        ]
+    },
+    {
+        providerId: 'mimo',
+        steps: [
+            {
+                text: 'mimo_step1',
+                url: 'https://api.xiaomimimo.com'
             }
         ]
     },

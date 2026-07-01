@@ -135,6 +135,7 @@
     "creating": "AI 创作中...",
     "ready": "✓ 配置完成，可以进入下一步",
     "pleaseInput": "请先输入剧本内容",
+    "importFile": "导入文件",
     "longTextDetection": {
       "title": "🚀 建议使用智能分集",
       "description": "检测到文本约 {count} 字，长文本直接作为单集处理可能导致生成效果不佳。",
